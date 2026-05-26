@@ -1,0 +1,29 @@
+[
+    {
+        "id": "kaleidoscope",
+        "name": "KALEIDOSKOP filtr",
+        "price": "990 Kč",
+        "description": "Detailní popis produktu Geometrická exploze obrazu pro odvážnou tvorbu 💎 Tento filtr využívá precizně broušené optické sklo s několika plochami pod různými úhly...",
+        "imgUrl": "https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/shop/big/53_kaleidoscope-png.png?6a09d58f",
+        "localImg": "images/kaleidoscope.png",
+        "href": "/kaleidoscope/"
+    },
+    {
+        "id": "fog",
+        "name": "FOG filtr",
+        "price": "990 Kč",
+        "description": "Detailní popis produktu ✨ Objevte kouzlo filmové atmosféry: Profesionální fotografický filtr FOG Toužíte do svých snímků vnést nefalšovanou snovou atmosféru, kt...",
+        "imgUrl": "https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/shop/big/50-1_fog-filtr.png?6a09d58f",
+        "localImg": "images/fog.png",
+        "href": "/fog/"
+    },
+    {
+        "id": "halo",
+        "name": "HALO filtr",
+        "price": "990 Kč",
+        "description": "Detailní popis produktu Magický prstenec světla, který izoluje váš objekt 🎞️ Tento filtr využívá speciálně broušené optické sklo s radiálními fazetami. Vytváří ...",
+        "imgUrl": "https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/shop/big/47-6_halo-filtr-white.jpg?6a09d58f",
+        "localImg": "images/halo.jpg",
+        "href": "/halo/"
+    }
+]
