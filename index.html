@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotofiltry.cz — Prémiové optické filtry pro moderní tvůrce</title>
+    <meta name="description" content="Filmový look a nekompromisní optická kvalita. Objevte kreativní fotofiltry PRISM, FOG a HALO navržené pro profesionální fotografy a filmaře.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Link to custom styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- ── BACKGROUND refract grid ── -->
+    <div class="bg-glow" id="bg-glow" aria-hidden="true"></div>
+
+    <!-- ── HEADER ── -->
+    <header class="main-header" id="header-section">
+        <div class="header-container">
+            <a href="#" class="brand-logo" id="logo-home">
+                <span class="logo-text">foto<b>filtr</b>y.cz</span>
+            </a>
+            
+            <nav class="nav-menu" aria-label="Hlavní navigace" id="main-navigation">
+                <a href="#kolekce" class="nav-link">Kolekce</a>
+                <a href="#o-nas" class="nav-link">O nás</a>
+                <a href="#journal" class="nav-link">Journal</a>
+                <a href="#kontakt" class="nav-link">Kontakt</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="cart-toggle-btn" id="cart-trigger" aria-label="Nákupní košík">
+                    <span class="cart-icon">🛒</span>
+                    <span class="cart-count" id="cart-counter">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── HERO SECTION ── -->
+    <section class="hero-section" id="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Vidět svět<br><span class="accent-glow">jinak.</span></h1>
+                <p class="hero-subtitle">Prémiové optické filtry navržené pro tvůrce, kteří odmítají průměrnost. Dodejte svým snímkům filmovou atmosféru přímo na snímač.</p>
+                <div class="hero-buttons">
+                    <a href="#kolekce" class="cta-button primary-cta" id="cta-explore">Prohlédnout kolekce</a>
+                    <a href="#o-nas" class="cta-button secondary-cta" id="cta-about">Náš příběh</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="glass-prism-container">
+                    <canvas id="prism-canvas"></canvas>
+                    <div class="prism-overlay-lens"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PRODUCT SECTION (KOLEKCE) ── -->
+    <section class="products-section" id="kolekce">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Kreativní skla</h2>
+                <p class="section-subtitle">Vyberte si svůj look. Každý filtr ručně brousíme z nejčistšího optického skla.</p>
+            </div>
+
+            <div class="products-grid" id="products-listing">
+                <!-- Product 1: PRISM -->
+                <div class="product-card" id="card-prism">
+                    <div class="card-image-wrap">
+                        <img src="https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/documents/upload/prism.jpg" alt="PRISM Filter" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'">
+                        <div class="card-badge">Bestseller</div>
+                    </div>
+                    <div class="card-info">
+                        <h3 class="product-name">Prism Filter</h3>
+                        <p class="product-desc">Rozkládá světlo do spektrálních paprsků a vytváří snové refrakce na krajích snímku.</p>
+                        <div class="product-bottom">
+                            <span class="product-price">990 Kč</span>
+                            <button class="add-to-cart-btn" data-id="prism" data-name="Prism Filter" data-price="990" data-img="https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/documents/upload/prism.jpg">Do košíku</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2: FOG -->
+                <div class="product-card" id="card-fog">
+                    <div class="card-image-wrap">
+                        <img src="https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/documents/upload/fog.jpg" alt="FOG Filter" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=600&q=80'">
+                        <div class="card-badge">Popular</div>
+                    </div>
+                    <div class="card-info">
+                        <h3 class="product-name">Fog Filter</h3>
+                        <p class="product-desc">Zjemňuje kontrast, vyhlazuje pleťovku a obklopuje světelné zdroje jemnou filmovou mlhou.</p>
+                        <div class="product-bottom">
+                            <span class="product-price">990 Kč</span>
+                            <button class="add-to-cart-btn" data-id="fog" data-name="Fog Filter" data-price="990" data-img="https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/documents/upload/fog.jpg">Do košíku</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3: HALO -->
+                <div class="product-card" id="card-halo">
+                    <div class="card-image-wrap">
+                        <img src="https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/documents/upload/halo.jpg" alt="HALO Filter" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=600&q=80'">
+                        <div class="card-badge">Exclusive</div>
+                    </div>
+                    <div class="card-info">
+                        <h3 class="product-name">Halo Filter</h3>
+                        <p class="product-desc">Vytváří výrazné teplé halo efekty kolem světelných zdrojů a dodává vintage nádech.</p>
+                        <div class="product-bottom">
+                            <span class="product-price">990 Kč</span>
+                            <button class="add-to-cart-btn" data-id="halo" data-name="Halo Filter" data-price="990" data-img="https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/documents/upload/halo.jpg">Do košíku</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── ABOUT SECTION (O NÁS) ── -->
+    <section class="about-section" id="o-nas">
+        <div class="section-container split-layout">
+            <div class="about-visual">
+                <div class="story-image-container">
+                    <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=800&q=80" alt="Fotograf s naším filtrem" class="about-main-img">
+                </div>
+            </div>
+            
+            <div class="about-content">
+                <span class="sub-label">NÁŠ PŘÍBĚH</span>
+                <h2 class="about-title">Hledání perfektní nedokonalosti</h2>
+                <div class="about-text">
+                    <p>Fotofiltry.cz vznikly jako tvůrčí playground — prostor, kde můžete ohýbat světlo a tvořit atmosféru přímo v objektivu. Ne až u počítače v postprodukci, ale v samotném okamžiku stisknutí spouště.</p>
+                    <p>Naším cílem není sterilní technická dokonalost, ale emoce. Filtry rozbíjejí digitální nudu moderních snímačů, zjemňují kontrast a přinášejí analogovou organickou texturu tam, kde chybí.</p>
+                    <p><strong>Světlo je všechno.</strong> A když ho začnete vnímat přes naše optická skla, změní se i to, co fotíte.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── STUDIO JOURNAL (BLOG) ── -->
+    <section class="journal-section" id="journal">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Studio Journal</h2>
+                <p class="section-subtitle">Inspirace, tutoriály a fotoreportáže od tvůrců z naší komunity.</p>
+            </div>
+
+            <div class="journal-grid">
+                <!-- Article 1 -->
+                <article class="journal-card" id="article-1">
+                    <div class="journal-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=600&q=80" alt="Focení v protisvětle" class="journal-img">
+                    </div>
+                    <div class="journal-content">
+                        <span class="journal-meta">TUTORIÁL • 5 MIN ČTENÍ</span>
+                        <h3 class="journal-card-title">Jak ovládnout lom světla s Prism filtrem</h3>
+                        <p class="journal-excerpt">Praktické tipy pro nastavení clony a úhlu záběru, kterými docílíte nejkrásnějších duhových odlesků bez přeexponování scény.</p>
+                        <a href="#" class="read-more-link">Číst dále →</a>
+                    </div>
+                </article>
+
+                <!-- Article 2 -->
+                <article class="journal-card" id="article-2">
+                    <div class="journal-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80" alt="Filmový look" class="journal-img">
+                    </div>
+                    <div class="journal-content">
+                        <span class="journal-meta">INSPIRACE • 8 MIN ČTENÍ</span>
+                        <h3 class="journal-card-title">Proč filmaři milují difuzní filtry (Fog look)</h3>
+                        <p class="journal-excerpt">Pohled do zákulisí nezávislých filmů. Jak Fog filtr pomáhá simulovat anamorfní optiku na běžných digitálních objektivech.</p>
+                        <a href="#" class="read-more-link">Číst dále →</a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CONTACT & ORDER FORM (KONTAKT) ── -->
+    <section class="contact-section" id="kontakt">
+        <div class="section-container split-layout">
+            <div class="contact-info-block">
+                <h2 class="contact-title">Máte dotaz? Vytvořme něco výjimečného.</h2>
+                <p class="contact-desc">Zajímá vás individuální rozměr filtru, nebo chcete navázat spolupráci? Napište nám nebo použijte rychlou objednávku.</p>
+                
+                <div class="contact-details">
+                    <div class="info-item">
+                        <span class="info-icon">📍</span>
+                        <div>
+                            <strong>Studio & Showroom</strong>
+                            <p>Praha, Česká republika</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">✉️</span>
+                        <div>
+                            <strong>Email</strong>
+                            <p>info@fotofiltry.cz</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form-block">
+                <form id="order-form" class="premium-form">
+                    <div class="form-group">
+                        <label for="form-name">Vaše jméno</label>
+                        <input type="text" id="form-name" required placeholder="Jan Novák">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-email">E-mail</label>
+                        <input type="email" id="form-email" required placeholder="jan@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-message">Zpráva nebo rychlá objednávka</label>
+                        <textarea id="form-message" rows="4" required placeholder="Mám zájem o Fog filtr v průměru 77mm..."></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn" id="form-submit">Odeslat poptávku</button>
+                    <div id="form-feedback" class="form-feedback"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer class="main-footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="f-logo-text">foto<b>filtr</b>y.cz</div>
+                <p class="f-brand-tagline">Nekompromisní optická kvalita a jedinečný look pro moderní tvůrce.</p>
+            </div>
+            
+            <div class="footer-links-grid">
+                <div class="footer-col">
+                    <h4>Kolekce</h4>
+                    <a href="#kolekce">Prism Series</a>
+                    <a href="#kolekce">Fog Series</a>
+                    <a href="#kolekce">Halo Series</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Informace</h4>
+                    <a href="#">Doprava a platba</a>
+                    <a href="#">Obchodní podmínky</a>
+                    <a href="#">Ochrana osobních údajů</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Zákaznický servis</h4>
+                    <a href="#kontakt">Napište nám</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Reklamace</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA.</p>
+        </div>
+    </footer>
+
+    <!-- ── CART SLIDEOUT DRAWER ── -->
+    <div class="cart-drawer" id="cart-drawer" aria-hidden="true">
+        <div class="cart-drawer-overlay" id="cart-overlay"></div>
+        <div class="cart-drawer-content">
+            <div class="cart-drawer-header">
+                <h3>Váš výběr</h3>
+                <button class="close-cart-btn" id="cart-close" aria-label="Zavřít košík">×</button>
+            </div>
+            
+            <div class="cart-items-list" id="cart-items-container">
+                <!-- Dynamically filled -->
+                <p class="cart-empty-message">Košík je prázdný.</p>
+            </div>
+            
+            <div class="cart-drawer-footer" id="cart-footer">
+                <div class="cart-total-line">
+                    <span>Mezisoučet:</span>
+                    <strong id="cart-total-price">0 Kč</strong>
+                </div>
+                <p class="cart-tax-info">Cena je konečná. Doprava bude spočítána v dalším kroku.</p>
+                <button class="checkout-button" id="cart-checkout">Pokračovat k objednávce</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to custom script -->
+    <script src="scripts.js"></script>
+</body>
+</html>
