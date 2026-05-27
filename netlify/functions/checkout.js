@@ -19,7 +19,7 @@ exports.handler = async function(event, context) {
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const { name, email, phone, zasilkovnaId, message, items } = body;
+    const { name, email, phone, zasilkovnaId, message, shipping_info, items } = body;
 
     if (!email || !items || !Array.isArray(items) || items.length === 0) {
       return {
@@ -81,6 +81,7 @@ exports.handler = async function(event, context) {
         phone: phone || '',
         zasilkovnaId: zasilkovnaId || '',
         message: message || '',
+        Doprava: shipping_info || '',
         items: JSON.stringify(itemsSummary)
       }
     });

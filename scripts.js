@@ -187,6 +187,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { id: item.id, quantity: item.quantity };
             });
 
+            var shippingField = document.getElementById('form-zasilkovna') || document.getElementById('form-address');
+            var shippingText = shippingField ? shippingField.value : ("Zásilkovna / Adresa: " + message);
+
             // Call Netlify checkout API
             fetch('/.netlify/functions/checkout', {
                 method: 'POST',
@@ -195,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     name: name,
                     email: email,
                     message: message,
+                    shipping_info: shippingText,
                     items: checkoutItems
                 })
             })
