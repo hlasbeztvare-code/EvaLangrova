@@ -169,7 +169,7 @@ module.exports = async (req, res) => {
     }
   }
 
-  // 6. AUTHORIZED: Upload image to images/ folder
+  // 6. AUTHORIZED: Bypass disk write and return Base64 Data URL directly
   if (req.method === 'POST' && action === 'upload-image') {
     try {
       const { filename, fileData } = req.body || {};
@@ -184,24 +184,10 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Nepodporovaný formát obrázku' });
       }
 
-      // Clean filename
-      const cleanFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const uploadDir = path.join(process.cwd(), 'images');
-
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      // Decode base64 data
-      const base64Data = fileData.replace(/^data:image\/\w+;base64,/, '');
-      const buffer = Buffer.from(base64Data, 'base64');
-
-      const filePath = path.join(uploadDir, cleanFilename);
-      fs.writeFileSync(filePath, buffer);
-
+      // Return the Base64 Data URL directly as the imageUrl to bypass local filesystem storage
       return res.status(200).json({
         success: true,
-        imageUrl: `images/${cleanFilename}`
+        imageUrl: fileData
       });
     } catch (err) {
       console.error(err);
