@@ -518,7 +518,7 @@
             const password = document.getElementById('password').value;
 
             try {
-                const res = await fetch('/api/admin?action=login', {
+                const res = await fetch('/.netlify/functions/admin?action=login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password })
@@ -547,7 +547,7 @@
 
         async function verifyToken() {
             try {
-                const res = await fetch('/api/admin?action=status', {
+                const res = await fetch('/.netlify/functions/admin?action=status', {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (res.ok) {
@@ -661,7 +661,7 @@
                 const base64 = reader.result;
 
                 try {
-                    const res = await fetch('/api/admin?action=upload-image', {
+                    const res = await fetch('/.netlify/functions/admin?action=upload-image', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -699,7 +699,7 @@
             feedback.className = 'feedback';
 
             try {
-                const res = await fetch('/api/admin?action=update-product', {
+                const res = await fetch('/.netlify/functions/admin?action=update-product', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -731,7 +731,7 @@
 
         async function loadBlogPosts() {
             try {
-                const res = await fetch('/api/blog');
+                const res = await fetch('/.netlify/functions/blog');
                 blogPosts = await res.json();
                 const container = document.getElementById('blog-list-container');
                 container.innerHTML = '';
@@ -817,7 +817,7 @@
             reader.readAsDataURL(file);
             reader.onload = async () => {
                 try {
-                    const res = await fetch('/api/admin?action=upload-image', {
+                    const res = await fetch('/.netlify/functions/admin?action=upload-image', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -854,7 +854,7 @@
             postFeedback.className = 'feedback';
 
             try {
-                const res = await fetch('/api/admin?action=save-post', {
+                const res = await fetch('/.netlify/functions/admin?action=save-post', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -895,7 +895,7 @@
             if (!confirm('Opravdu chcete tento článek smazat?')) return;
 
             try {
-                const res = await fetch('/api/admin?action=delete-post', {
+                const res = await fetch('/.netlify/functions/admin?action=delete-post', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -1,16 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const http = require('https');
 
-// Helper to buffer the raw request body (needed for Stripe signature verification)
-async function buffer(readable) {
-  const chunks = [];
-  for await (const chunk of readable) {
-    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-  }
-  return Buffer.concat(chunks);
-}
-
-// Helper to send HTTP requests using Node.js built-in 'https'
 function makeRequest(url, options, postData) {
   return new Promise((resolve, reject) => {
     const req = http.request(url, options, (res) => {
@@ -32,33 +22,35 @@ function makeRequest(url, options, postData) {
   });
 }
 
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+exports.handler = async function(event, context) {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const sig = req.headers['stripe-signature'];
+  // Netlify gets headers as case-insensitive or lowecase
+  const sig = event.headers['stripe-signature'] || event.headers['Stripe-Signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  let event;
+  let stripeEvent;
   try {
-    const rawBody = await buffer(req);
-    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+    let rawBody = event.body;
+    if (event.isBase64Encoded) {
+      rawBody = Buffer.from(event.body, 'base64').toString('utf8');
+    }
+    stripeEvent = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err) {
     console.error(`Webhook signature verification failed: ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    return { statusCode: 400, body: `Webhook Error: ${err.message}` };
   }
 
-  // Handle the payment_intent.succeeded event
-  if (event.type === 'payment_intent.succeeded') {
-    const paymentIntent = event.data.object;
+  if (stripeEvent.type === 'payment_intent.succeeded') {
+    const paymentIntent = stripeEvent.data.object;
     const metadata = paymentIntent.metadata || {};
 
     const name = metadata.name || 'Zákazník';
     const email = metadata.email;
     const phone = metadata.phone || '';
     const zasilkovnaId = metadata.zasilkovnaId || '';
-    const message = metadata.message || '';
     
     let items = [];
     try {
@@ -81,10 +73,9 @@ module.exports = async (req, res) => {
           name: item.name,
           quantity: item.quantity,
           unit_price: item.unitPriceCzk,
-          vat_rate: 0 // Assume 0 or customize as needed
+          vat_rate: 0
         }));
 
-        // Add shipping line
         invoiceLines.push({
           name: 'Doprava (Zásilkovna)',
           quantity: 1,
@@ -101,8 +92,8 @@ module.exports = async (req, res) => {
           payment_method: 'card',
           lines: invoiceLines,
           issued_on: today,
-          paid_on: today, // Automatically marks invoice as Paid
-          send_by_email: true // Instructs Fakturoid to email the invoice to the customer
+          paid_on: today,
+          send_by_email: true
         });
 
         const fakturoidUrl = `https://app.fakturoid.cz/api/v2/accounts/${fakturoidSubdomain}/invoices.json`;
@@ -121,8 +112,6 @@ module.exports = async (req, res) => {
       } catch (err) {
         console.error('Fakturoid invoicing failed:', err);
       }
-    } else {
-      console.log('Fakturoid credentials missing. Skipping invoicing.');
     }
 
     // B) SMS NOTIFICATION FLOW (Twilio SMS)
@@ -142,7 +131,6 @@ module.exports = async (req, res) => {
         }
 
         const postData = `To=${encodeURIComponent(evaPhone)}&From=${encodeURIComponent(twilioPhone)}&Body=${encodeURIComponent(smsText)}`;
-        
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`;
         const twilioOptions = {
           method: 'POST',
@@ -159,17 +147,8 @@ module.exports = async (req, res) => {
       } catch (err) {
         console.error('Twilio SMS notification failed:', err);
       }
-    } else {
-      console.log('Twilio credentials or Eva phone missing. Skipping SMS notification.');
     }
   }
 
-  return res.status(200).json({ received: true });
-};
-
-// Disable Vercel body parser to get raw body
-export const config = {
-  api: {
-    bodyParser: false
-  }
+  return { statusCode: 200, body: JSON.stringify({ received: true }) };
 };

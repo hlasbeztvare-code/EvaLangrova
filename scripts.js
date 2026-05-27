@@ -187,8 +187,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { id: item.id, quantity: item.quantity };
             });
 
-            // Call serverless checkout API
-            fetch('/api/checkout', {
+            // Call Netlify checkout API
+            fetch('/.netlify/functions/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var grid = document.querySelector('.journal-grid');
         if (!grid) return;
 
-        fetch('/api/blog')
+        fetch('/.netlify/functions/blog')
             .then(function(res) { return res.json(); })
             .then(function(posts) {
                 if (!posts || posts.length === 0) return;

@@ -2,33 +2,34 @@ const fs = require('fs');
 const path = require('path');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-module.exports = async (req, res) => {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+exports.handler = async function(event, context) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+  };
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   try {
-    const { name, email, phone, zasilkovnaId, message, items } = req.body;
+    const body = JSON.parse(event.body || '{}');
+    const { name, email, phone, zasilkovnaId, message, items } = body;
 
     if (!email || !items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: 'Missing required checkout information (email, items)' });
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Missing required checkout information (email, items)' })
+      };
     }
 
-    // Load products.json securely on the server (Zero Trust Validation)
+    // Load products.json securely on the server
     const productsPath = path.join(process.cwd(), 'products.json');
     let dbProducts = [];
     try {
@@ -36,24 +37,22 @@ module.exports = async (req, res) => {
       dbProducts = JSON.parse(productsData);
     } catch (err) {
       console.error('Failed to load products.json:', err);
-      return res.status(500).json({ error: 'Database error' });
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'Database error' }) };
     }
 
-    // Calculate total price based on server products.json prices
     let totalCzk = 0;
     const itemsSummary = [];
 
     for (const clientItem of items) {
       const dbProduct = dbProducts.find(p => p.id === clientItem.id);
       if (!dbProduct) {
-        return res.status(400).json({ error: `Product not found: ${clientItem.id}` });
+        return { statusCode: 400, headers, body: JSON.stringify({ error: `Product not found: ${clientItem.id}` }) };
       }
 
-      // Parse price from format like "990 Kč"
       const priceVal = parseInt(dbProduct.price.replace(/[^0-9]/g, ''), 10);
       if (isNaN(priceVal)) {
         console.error(`Invalid price format in database for product: ${dbProduct.id}`);
-        return res.status(500).json({ error: 'Invalid product price configuration' });
+        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Invalid product price configuration' }) };
       }
 
       const qty = parseInt(clientItem.quantity, 10) || 1;
@@ -67,14 +66,11 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Add shipping cost (100 CZK)
     const shippingCzk = 100;
     totalCzk += shippingCzk;
 
-    // Convert CZK to smallest unit (cents/haléře, 1 CZK = 100 cents for Stripe)
     const amountInCents = totalCzk * 100;
 
-    // Create Stripe PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: 'czk',
@@ -89,14 +85,22 @@ module.exports = async (req, res) => {
       }
     });
 
-    return res.status(200).json({
-      clientSecret: paymentIntent.client_secret,
-      totalAmountCzk: totalCzk,
-      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || ''
-    });
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        clientSecret: paymentIntent.client_secret,
+        totalAmountCzk: totalCzk,
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || ''
+      })
+    };
 
   } catch (error) {
     console.error('Checkout error:', error);
-    return res.status(500).json({ error: error.message || 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: error.message || 'Internal Server Error' })
+    };
   }
 };
