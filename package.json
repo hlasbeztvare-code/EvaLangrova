@@ -1,0 +1,13 @@
+{
+  "name": "evalangrova-eshop",
+  "version": "1.0.0",
+  "description": "Serverless backend and Stripe integration for EvaLangrova e-shop",
+  "main": "api/checkout.js",
+  "dependencies": {
+    "stripe": "^14.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}

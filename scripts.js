@@ -152,7 +152,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    /* ── 3. OBJEDNÁVKOVÝ / KONTAKTNÍ FORMULÁŘ ── */
+    // Load Stripe.js dynamically
+    var stripeScript = document.createElement('script');
+    stripeScript.src = 'https://js.stripe.com/v3/';
+    document.head.appendChild(stripeScript);
+
+    /* ── 3. OBJEDNÁVKOVÝ / KONTAKTNÍ FORMULÁŘ (STRIPE PLATBA) ── */
     var form = document.getElementById('order-form');
     var feedback = document.getElementById('form-feedback');
 
@@ -165,28 +170,248 @@ document.addEventListener('DOMContentLoaded', function() {
             var message = document.getElementById('form-message').value;
             var submitBtn = document.getElementById('form-submit');
 
-            // Vizuální lock
+            if (cart.length === 0) {
+                feedback.className = 'form-feedback';
+                feedback.style.color = 'var(--danger)';
+                feedback.textContent = 'Košík je prázdný. Přidejte prosím zboží do košíku.';
+                return;
+            }
+
+            // Lock submit button
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Odesílám...';
+            submitBtn.textContent = 'Připravuji platbu...';
             feedback.className = 'form-feedback';
             feedback.textContent = '';
 
-            // Simulované odeslání (v reálu by zde byl fetch na API / server / email)
-            setTimeout(function() {
+            var checkoutItems = cart.map(function(item) {
+                return { id: item.id, quantity: item.quantity };
+            });
+
+            // Call serverless checkout API
+            fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    message: message,
+                    items: checkoutItems
+                })
+            })
+            .then(function(res) {
+                if (!res.ok) {
+                    return res.json().then(function(err) { throw new Error(err.error || 'Checkout API error'); });
+                }
+                return res.json();
+            })
+            .then(function(data) {
+                if (!window.Stripe) {
+                    throw new Error('Knihovna Stripe se nenačetla. Zkuste to prosím znovu.');
+                }
+
+                var stripe = Stripe(data.publishableKey);
+                var elements = stripe.elements();
+
+                // Build a premium minimalist card payment modal overlay
+                var modal = document.createElement('div');
+                modal.id = 'stripe-payment-modal';
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.background = 'rgba(0, 0, 0, 0.85)';
+                modal.style.backdropFilter = 'blur(8px)';
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '9999';
+                modal.style.fontFamily = "'Outfit', sans-serif";
+
+                modal.innerHTML = 
+                    '<div style="background:#121216; border:1px solid #22222a; border-radius:12px; padding:30px; width:100%; max-width:420px; box-shadow:0 20px 40px rgba(0,0,0,0.5); color:#f3f3f6; position:relative;">' +
+                        '<button id="stripe-modal-close" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#8e8e9f; font-size:1.5rem; cursor:pointer; line-height:1;">×</button>' +
+                        '<h3 style="margin:0 0 10px 0; font-size:1.4rem; font-weight:700; color:#f3f3f6;">Dokončení platby</h3>' +
+                        '<p style="margin:0 0 20px 0; font-size:0.9rem; color:#8e8e9f;">Celková částka: <strong style="color:#d68c3f;">' + data.totalAmountCzk + ' Kč</strong> (včetně poštovného 100 Kč)</p>' +
+                        '<form id="stripe-card-form">' +
+                            '<div style="margin-bottom:20px; text-align:left;">' +
+                                '<label style="display:block; font-size:0.8rem; color:#8e8e9f; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Platební karta</label>' +
+                                '<div id="stripe-card-element" style="background:#1a1a22; border:1px solid #22222a; border-radius:6px; padding:12px 16px;"></div>' +
+                                '<div id="stripe-card-errors" role="alert" style="color:#e65050; font-size:0.85rem; margin-top:8px;"></div>' +
+                            '</div>' +
+                            '<button type="submit" id="stripe-submit-payment" style="width:100%; background:#d68c3f; color:#000; border:none; border-radius:6px; padding:14px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.2s ease;">Zaplatit a dokončit</button>' +
+                        '</form>' +
+                    '</div>';
+
+                document.body.appendChild(modal);
+
+                var style = {
+                    base: {
+                        color: '#f3f3f6',
+                        fontFamily: "'Outfit', sans-serif",
+                        fontSmoothing: 'antialiased',
+                        fontSize: '16px',
+                        '::placeholder': {
+                            color: '#8e8e9f'
+                        }
+                    },
+                    invalid: {
+                        color: '#e65050',
+                        iconColor: '#e65050'
+                    }
+                };
+
+                var cardElement = elements.create('card', { style: style, hidePostalCode: true });
+                cardElement.mount('#stripe-card-element');
+
+                // Close Modal
+                document.getElementById('stripe-modal-close').addEventListener('click', function() {
+                    document.body.removeChild(modal);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Odeslat poptávku';
+                });
+
+                // Form submit within modal
+                var cardForm = document.getElementById('stripe-card-form');
+                cardForm.addEventListener('submit', function(ev) {
+                    ev.preventDefault();
+                    var payBtn = document.getElementById('stripe-submit-payment');
+                    payBtn.disabled = true;
+                    payBtn.textContent = 'Zpracovávám platbu...';
+
+                    stripe.confirmCardPayment(data.clientSecret, {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: {
+                                name: name,
+                                email: email
+                            }
+                        }
+                    })
+                    .then(function(result) {
+                        if (result.error) {
+                            document.getElementById('stripe-card-errors').textContent = result.error.message;
+                            payBtn.disabled = false;
+                            payBtn.textContent = 'Zaplatit a dokončit';
+                        } else {
+                            if (result.paymentIntent.status === 'succeeded') {
+                                document.body.removeChild(modal);
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = 'Odeslat poptávku';
+                                
+                                feedback.className = 'form-feedback success';
+                                feedback.innerHTML = 'Děkujeme, ' + name + '! Objednávka byla úspěšně zaplacena. Potvrzení a fakturu obdržíte e-mailem.';
+                                
+                                // Clear cart
+                                form.reset();
+                                cart = [];
+                                saveCart();
+                                updateCartUI();
+                            }
+                        }
+                    });
+                });
+            })
+            .catch(function(err) {
+                console.error(err);
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Odeslat poptávku';
-                
-                feedback.className = 'form-feedback success';
-                feedback.innerHTML = 'Děkujeme, ' + name + '! Poptávka byla úspěšně odeslána. Brzy se vám ozveme zpět.';
-                
-                // Vyprázdnit formu a košík
-                form.reset();
-                cart = [];
-                saveCart();
-                updateCartUI();
-            }, 1200);
+                feedback.className = 'form-feedback';
+                feedback.style.color = 'var(--danger)';
+                feedback.textContent = 'Nastala chyba při přípravě platby: ' + err.message;
+            });
         });
     }
+
+    /* ── 3.5 DYNAMICKÉ NAČÍTÁNÍ PRODUKTŮ A BLOGU Z DATABÁZE ── */
+    function loadProductsData() {
+        fetch('/products.json')
+            .then(function(res) { return res.json(); })
+            .then(function(products) {
+                products.forEach(function(p) {
+                    var card = null;
+                    if (p.id === 'kaleidoscope') card = document.getElementById('card-prism');
+                    else if (p.id === 'fog') card = document.getElementById('card-fog');
+                    else if (p.id === 'halo') card = document.getElementById('card-halo');
+
+                    if (card) {
+                        // Update price
+                        var priceEl = card.querySelector('.product-price');
+                        if (priceEl) priceEl.textContent = p.price;
+
+                        // Update description
+                        var descEl = card.querySelector('.product-desc');
+                        if (descEl) descEl.textContent = p.description;
+
+                        // Update image
+                        var imgEl = card.querySelector('.product-img');
+                        if (imgEl && p.localImg) imgEl.src = p.localImg;
+
+                        // Update button attributes
+                        var btn = card.querySelector('.add-to-cart-btn');
+                        if (btn) {
+                            var priceVal = parseInt(p.price.replace(/[^0-9]/g, ''), 10) || 990;
+                            btn.setAttribute('data-price', priceVal);
+                            if (p.localImg) btn.setAttribute('data-img', p.localImg);
+                            
+                            // Check Stock
+                            if (p.inStock === false) {
+                                btn.disabled = true;
+                                btn.textContent = 'Vyprodáno';
+                                btn.style.background = '#22222a';
+                                btn.style.color = '#8e8e9f';
+                                btn.style.cursor = 'not-allowed';
+                            } else {
+                                btn.disabled = false;
+                                btn.textContent = 'Do košíku';
+                                btn.style.background = '';
+                                btn.style.color = '';
+                                btn.style.cursor = '';
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(function(err) {
+                console.error('Failed to load products.json:', err);
+            });
+    }
+
+    function loadBlogPosts() {
+        var grid = document.querySelector('.journal-grid');
+        if (!grid) return;
+
+        fetch('/api/blog')
+            .then(function(res) { return res.json(); })
+            .then(function(posts) {
+                if (!posts || posts.length === 0) return;
+                
+                grid.innerHTML = '';
+                posts.forEach(function(post) {
+                    var card = document.createElement('article');
+                    card.className = 'journal-card';
+                    card.id = 'article-' + post.id;
+                    card.innerHTML = 
+                        '<div class="journal-img-wrap">' +
+                            '<img src="' + post.image + '" alt="' + post.title + '" class="journal-img" onerror="this.src=\'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80\'">' +
+                        '</div>' +
+                        '<div class="journal-content">' +
+                            '<span class="journal-meta">' + post.date + '</span>' +
+                            '<h3 class="journal-card-title">' + post.title + '</h3>' +
+                            '<p class="journal-excerpt">' + post.text + '</p>' +
+                            '<a href="#" class="read-more-link">Číst dále →</a>' +
+                        '</div>';
+                    grid.appendChild(card);
+                });
+            })
+            .catch(function(err) {
+                console.error('Failed to load blog posts:', err);
+            });
+    }
+
+    // Run loaders
+    loadProductsData();
+    loadBlogPosts();
 
     /* ── 4. INTERAKTIVNÍ CANVAS PRISM ANIMACE ── */
     var canvas = document.getElementById('prism-canvas');
