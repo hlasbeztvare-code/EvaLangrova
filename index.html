@@ -13,6 +13,8 @@
     
     <!-- Link to custom styles -->
     <link rel="stylesheet" href="styles.css">
+    <!-- Packeta Widget v6 -->
+    <script src="https://widget.packeta.com/v6/www/js/library.js"></script>
 </head>
 <body>
 
@@ -74,7 +76,7 @@
 
             <div class="products-grid" id="products-listing">
                 <!-- Product 1: KALEIDOSKOP -->
-                <div class="product-card" id="card-prism">
+                <div class="product-card" id="card-kaleidoscope">
                     <div class="card-image-wrap">
                         <img src="images/kaleidoscope.png" alt="KALEIDOSKOP Filter" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'">
                         <div class="card-badge">Bestseller</div>
@@ -217,6 +219,17 @@
                     <div class="form-group">
                         <label for="form-email">E-mail</label>
                         <input type="email" id="form-email" required placeholder="jan@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-phone">Telefon</label>
+                        <input type="tel" id="form-phone" required placeholder="+420 777 777 777">
+                    </div>
+                    <div class="form-group">
+                        <label>Doprava (Zásilkovna)</label>
+                        <button type="button" id="zasilkovna-trigger" class="submit-btn" style="background: var(--color-bg); color: var(--color-text-main); border: 1px solid var(--color-border); padding: 12px; margin-bottom: 8px; font-size: 13px;">Vybrat pobočku Zásilkovny</button>
+                        <div id="zasilkovna-info" style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 8px;">Žádná pobočka nevybrána</div>
+                        <input type="hidden" id="form-zasilkovna" name="zasilkovnaName">
+                        <input type="hidden" id="form-zasilkovna-id" name="zasilkovnaId">
                     </div>
                     <div class="form-group">
                         <label for="form-message">Zpráva nebo rychlá objednávka</label>

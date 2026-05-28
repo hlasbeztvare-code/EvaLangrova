@@ -582,7 +582,7 @@
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.innerHTML = `
-                        <img src="${p.localImg || p.imgUrl}" class="product-img-preview" id="preview-img-${p.id}">
+                        <img src="${p.localImg || p.imgUrl}" class="product-img-preview" id="preview-img-${p.id}" data-uploaded-url="${p.localImg || p.imgUrl}">
                         
                         <div class="drag-drop-zone" id="drag-zone-${p.id}">
                             <p>Drag & drop novou fotku</p>
@@ -692,7 +692,7 @@
             const inStock = document.getElementById(`stock-${productId}`).checked;
             const description = document.getElementById(`desc-${productId}`).value;
             const preview = document.getElementById(`preview-img-${productId}`);
-            const image = preview.dataset.uploadedUrl || '';
+            const image = preview.dataset.uploadedUrl;
             const feedback = document.getElementById(`feedback-${productId}`);
 
             feedback.textContent = '';

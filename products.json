@@ -3,30 +3,33 @@
         "id": "kaleidoscope",
         "name": "KALEIDOSKOP filtr",
         "price": "990 Kč",
-        "description": "Detailní popis produktu Geometrická exploze obrazu pro odvážnou tvorbu 💎 Tento filtr využívá precizně broušené optické sklo s několika plochami pod různými úhly...",
-        "imgUrl": "https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/shop/big/53_kaleidoscope-png.png?6a09d58f",
-        "localImg": "images/kaleidoscope.png",
-        "href": "/kaleidoscope/",
+        "description": "<div >\n            <div >\n                <h4>Detailní popis produktu</h4>\n                                    <p data-path-to-node=\"24\"><b data-path-to-node=\"24\" data-index-in-node=\"0\">Geometrická exploze obrazu pro odvážnou tvorbu 💎</b></p>\r\n<p data-path-to-node=\"25\">Tento filtr využívá precizně broušené optické sklo s několika plochami pod různými úhly. Funguje na principu lomu světla, kdy středový obraz zůstává zachován, zatímco jeho části se replikují po obvodu.</p>\r\n<p data-path-to-node=\"25\">&nbsp;</p>\r\n<p data-path-to-node=\"26\"><b data-path-to-node=\"26\" data-index-in-node=\"0\">Vizuální charakteristika:</b></p>\r\n<ul>\r\n<li data-path-to-node=\"26\"><strong>Multiplikace obrazu</strong>: Jeden objekt se v záběru objeví hned několikrát v precizních segmentech.</li>\r\n<li data-path-to-node=\"26\"><strong>Dynamické rotace</strong>: Filtr je v otočné obroučce. Otáčením můžete měnit pozici replikovaných obrazů v reálném čase.</li>\r\n<li data-path-to-node=\"26\"><strong>Abstraktní okraje</strong>: Scéna se tříští do geometrických tvarů, zatímco střed může zůstat čitelný.</li>\r\n</ul>\r\n<p data-path-to-node=\"28\">&nbsp;</p>\r\n<p data-path-to-node=\"28\"><b data-path-to-node=\"28\" data-index-in-node=\"0\">Kdy jej použít?</b></p>\r\n<ul>\r\n<li data-path-to-node=\"28\"><strong>Hudební klipy:</strong> Ideální pro navození psychedelické atmosféry nebo snových vizí.</li>\r\n<li data-path-to-node=\"28\"><strong>Noční město a neony:</strong> Rozstříští pouliční lampy a reklamy do fascinující barevné mozaiky.</li>\r\n<li data-path-to-node=\"28\"><strong>Artové portréty:</strong> Umístěte obličej do středu a nechte zbytek scény „explodovat“ do stran.</li>\r\n<li data-path-to-node=\"28\"><strong>Makro a detaily:</strong> Z obyčejného listu nebo květu vytvoříte symetrický ornament připomínající mandalu.</li>\r\n</ul>\r\n<p data-path-to-node=\"30\">&nbsp;</p>\r\n<p data-path-to-node=\"30\"><b data-path-to-node=\"30\" data-index-in-node=\"0\">Pro-tip:</b> Nejlepších výsledků dosáhnete s objektivy s delší ohniskovou vzdáleností (50 mm a více). Při nízkých clonách se hrany sekaného skla krásně zjemní.</p>",
+        "images": [
+            "images/kaleidoscope_0.png"
+        ],
+        "localImg": "images/kaleidoscope_0.png",
         "inStock": true
     },
     {
         "id": "fog",
         "name": "FOG filtr",
         "price": "990 Kč",
-        "description": "Detailní popis produktu ✨ Objevte kouzlo filmové atmosféry: Profesionální fotografický filtr FOG Toužíte do svých snímků vnést nefalšovanou snovou atmosféru, kt...",
-        "imgUrl": "https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/shop/big/50-1_fog-filtr.png?6a09d58f",
-        "localImg": "images/fog.png",
-        "href": "/fog/",
+        "description": "<div >\n            <div >\n                <h4>Detailní popis produktu</h4>\n                                    <div >\r\n<h2 >✨ Objevte kouzlo filmové atmosféry: Profesionální fotografický filtr FOG</h2>\r\n<p >Toužíte do svých snímků vnést nefalšovanou snovou atmosféru, kterou znáte z klasických celuloidových filmů? Fotografický filtr <strong>FOG</strong> je nepostradatelným nástrojem pro kreativní tvůrce, kteří chtějí vystoupit z řady dokonale ostrých, ale často chladných a příliš technických digitálních záběrů. Tento prémiový filtr jemně rozostřuje dopadající světlo a citlivě zjemňuje mikro-detaily. Výsledkem je podmanivý, něžný a hluboce romantický efekt, který povýší každou fotografii na umělecké dílo – to vše <strong>bez jakékoliv ztráty žádoucího kontrastu nebo hloubky černé</strong>.</p>\r\n<div >\r\n<h3 >📸 Jak filtr FOG funguje v praxi?</h3>\r\n<p >Tajemství dokonalého výsledku spočívá v samotné konstrukci. Základem filtru FOG je <strong>špičkové optické sklo nejvyšší jakosti</strong>, v jehož vnitřní struktuře jsou s absolutní precizností rovnoměrně rozprostřeny tisíce mikroskopických částic. Tyto částice fungují jako sofistikovaná, oku neviditelná síť. Jakmile skrze ně prochází světlo, jemně se láme a rozptyluje, což snímkům dodává přirozený organický nádech, který v postprocesu jen stěží napodobíte.</p>",
+        "images": [
+            "images/fog_0.png"
+        ],
+        "localImg": "images/fog_0.png",
         "inStock": true
     },
     {
         "id": "halo",
         "name": "HALO filtr",
         "price": "990 Kč",
-        "description": "Detailní popis produktu Magický prstenec světla, který izoluje váš objekt 🎞️ Tento filtr využívá speciálně broušené optické sklo s radiálními fazetami. Vytváří ...",
-        "imgUrl": "https://cdn.myshoptet.com/usr/780725.myshoptet.com/user/shop/big/47-6_halo-filtr-white.jpg?6a09d58f",
-        "localImg": "images/halo.jpg",
-        "href": "/halo/",
+        "description": "<div >\n            <div >\n                <h4>Detailní popis produktu</h4>\n                                    <p data-path-to-node=\"15\"><b data-path-to-node=\"15\" data-index-in-node=\"0\">Magický prstenec světla, který izoluje váš objekt 🎞️</b></p>\r\n<p data-path-to-node=\"16\">Tento filtr využívá speciálně broušené optické sklo s radiálními fazetami. Vytváří unikátní optickou deformaci, která přirozeně vede oko diváka přímo do středu kompozice k vašemu hlavnímu objektu.</p>\r\n<p data-path-to-node=\"17\">&nbsp;</p>\r\n<p data-path-to-node=\"17\"><b data-path-to-node=\"17\" data-index-in-node=\"0\">Vizuální charakteristika:</b></p>\r\n<ul>\r\n<li data-path-to-node=\"17\"><strong>Magický prstenec</strong> (The Halo Loop): Kolem středu snímku vytváří zářivý, vířivý kruh světla, který izoluje subjekt a dodává fotce hloubku.</li>\r\n<li data-path-to-node=\"17\"><strong>Radiální rozostření:</strong> Okraje snímku se jemně rozmývají do pohybu. Vytváří dynamický efekt tunelového vidění.</li>\r\n<li data-path-to-node=\"17\"><strong>Hra s barvami:</strong> Filtr láme paprsky tak, že v prstenci vytváří jemné duhové odlesky nebo sytý barevný opar.</li>\r\n<li data-path-to-node=\"17\"><strong>Filmový soft-touch</strong>: Zatímco střed zůstává ostrý, okolí získává organický, analogový vzhled.</li>\r\n</ul>\r\n<p data-path-to-node=\"19\">&nbsp;</p>\r\n<p data-path-to-node=\"19\"><b data-path-to-node=\"19\" data-index-in-node=\"0\">Kdy jej použít?</b></p>\r\n<ul>\r\n<li data-path-to-node=\"19\"><strong>Street fotografie:</strong> Pro zdůraznění postavy v rušném městském prostředí.</li>\r\n<li data-path-to-node=\"19\"><strong>Módní fotografie:</strong> Pokud chcete vystoupit z davu a dodat snímkům dynamiku.</li>\r\n<li data-path-to-node=\"19\"><strong>Akční záběry: </strong>Skvěle funguje i ve videu, kde prstenec dynamicky reaguje na zdroje světla.</li>\r\n</ul>\r\n<p data-path-to-node=\"21\">&nbsp;</p>\r\n<p data-path-to-node=\"21\"><b data-path-to-node=\"21\" data-index-in-node=\"0\">Pro-tip:</b> Použijte nižší clonové číslo (např. f/1.8 – f/2.8). Rozostření okrajů pak bude působit přirozeněji.</p>",
+        "images": [
+            "images/halo_0.jpg"
+        ],
+        "localImg": "images/halo_0.jpg",
         "inStock": true
     }
 ]

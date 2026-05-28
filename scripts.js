@@ -167,6 +167,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             var name = document.getElementById('form-name').value;
             var email = document.getElementById('form-email').value;
+            var phone = document.getElementById('form-phone').value;
+            var zasilkovnaId = document.getElementById('form-zasilkovna-id').value;
             var message = document.getElementById('form-message').value;
             var submitBtn = document.getElementById('form-submit');
 
@@ -174,6 +176,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 feedback.className = 'form-feedback';
                 feedback.style.color = 'var(--danger)';
                 feedback.textContent = 'Košík je prázdný. Přidejte prosím zboží do košíku.';
+                return;
+            }
+
+            if (!zasilkovnaId) {
+                feedback.className = 'form-feedback error';
+                feedback.style.color = 'var(--danger)';
+                feedback.textContent = 'Vyberte prosím pobočku Zásilkovny.';
                 return;
             }
 
@@ -197,6 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({
                     name: name,
                     email: email,
+                    phone: phone,
+                    zasilkovnaId: zasilkovnaId,
                     message: message,
                     shipping_info: shippingText,
                     items: checkoutItems
@@ -334,31 +345,71 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(products) {
                 products.forEach(function(p) {
                     var card = null;
-                    if (p.id === 'kaleidoscope') card = document.getElementById('card-prism');
+                    if (p.id === 'kaleidoscope') card = document.getElementById('card-kaleidoscope');
                     else if (p.id === 'fog') card = document.getElementById('card-fog');
                     else if (p.id === 'halo') card = document.getElementById('card-halo');
 
                     if (card) {
-                        // Update price
+                        // 1. Nastavení ceny
                         var priceEl = card.querySelector('.product-price');
                         if (priceEl) priceEl.textContent = p.price;
 
-                        // Update description
+                        // 2. Vstříknutí KOMPLETNÍHO plného HTML popisu ze starého Shoptetu
                         var descEl = card.querySelector('.product-desc');
-                        if (descEl) descEl.textContent = p.description;
+                        if (descEl) {
+                            descEl.innerHTML = p.description; // innerHTML, ať fungují odrážky a formátování!
+                        }
 
-                        // Update image
+                        // 3. Hlavní fotka
                         var imgEl = card.querySelector('.product-img');
                         if (imgEl && p.localImg) imgEl.src = p.localImg;
 
-                        // Update button attributes
+                        // 4. AUTOMATICKÉ VYTVOŘENÍ GALERIE (Pokud má produkt víc fotek)
+                        if (p.images && p.images.length > 1) {
+                            var imgWrap = card.querySelector('.card-image-wrap');
+                            
+                            // Smažeme případnou starou lištu miniatur, ať se neduplikuje
+                            var oldGallery = card.querySelector('.product-thumb-gallery');
+                            if (oldGallery) oldGallery.remove();
+
+                            // Vytvoříme flex kontejner pro miniatury pod hlavní fotkou
+                            var galleryDiv = document.createElement('div');
+                            galleryDiv.className = 'product-thumb-gallery';
+                            galleryDiv.style.display = 'flex';
+                            galleryDiv.style.gap = '5px';
+                            galleryDiv.style.marginTop = '10px';
+                            galleryDiv.style.overflowX = 'auto';
+
+                            p.images.forEach(function(imgSrc) {
+                                var thumb = document.createElement('img');
+                                thumb.src = imgSrc;
+                                thumb.style.width = '45px';
+                                thumb.style.height = '45px';
+                                thumb.style.objectFit = 'cover';
+                                thumb.style.borderRadius = '4px';
+                                thumb.style.cursor = 'pointer';
+                                thumb.style.border = '1px solid #22222a';
+
+                                // Interaktivní proklik - klik na miniaturu změní hlavní velkou fotku
+                                thumb.addEventListener('click', function() {
+                                    imgEl.src = imgSrc;
+                                    var btn = card.querySelector('.add-to-cart-btn');
+                                    if (btn) btn.setAttribute('data-img', imgSrc);
+                                });
+
+                                galleryDiv.appendChild(thumb);
+                            });
+
+                            imgWrap.appendChild(galleryDiv);
+                        }
+
+                        // 5. Update nákupního tlačítka
                         var btn = card.querySelector('.add-to-cart-btn');
                         if (btn) {
                             var priceVal = parseInt(p.price.replace(/[^0-9]/g, ''), 10) || 990;
                             btn.setAttribute('data-price', priceVal);
                             if (p.localImg) btn.setAttribute('data-img', p.localImg);
                             
-                            // Check Stock
                             if (p.inStock === false) {
                                 btn.disabled = true;
                                 btn.textContent = 'Vyprodáno';
@@ -379,6 +430,24 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(function(err) {
                 console.error('Failed to load products.json:', err);
             });
+    }
+
+    // Packeta Widget v6 picker
+    var zasilkovnaBtn = document.getElementById('zasilkovna-trigger');
+    if (zasilkovnaBtn) {
+        zasilkovnaBtn.addEventListener('click', function() {
+            var apiKey = 'a90886c33e8b0a9c'; // Demo key or project apiKey
+            Packeta.Widget.pick(apiKey, function(point) {
+                if (point) {
+                    document.getElementById('form-zasilkovna-id').value = point.id;
+                    document.getElementById('form-zasilkovna').value = point.name + ', ' + point.street + ', ' + point.city;
+                    document.getElementById('zasilkovna-info').textContent = 'Vybráno: ' + point.name + ' (' + point.street + ')';
+                }
+            }, {
+                country: 'cz',
+                language: 'cs'
+            });
+        });
     }
 
     function loadBlogPosts() {
