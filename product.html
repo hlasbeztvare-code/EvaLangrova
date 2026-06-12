@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail filtru — Fotofiltry.cz</title>
+    <meta name="description" content="Detail prémiového optického filtru od Fotofiltry.cz.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Link to custom styles -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Packeta Widget v6 -->
+    <script src="https://widget.packeta.com/v6/www/js/library.js"></script>
+</head>
+<body>
+
+    <!-- ── BACKGROUND refract grid ── -->
+    <div class="bg-glow" id="bg-glow" aria-hidden="true"></div>
+
+    <!-- ── HEADER ── -->
+    <header class="main-header" id="header-section">
+        <div class="header-container">
+            <a href="index.html" class="brand-logo" id="logo-home">
+                <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-text-fallback').style.display='inline';" style="max-height: 40px; width: auto; display: block;">
+                <span class="logo-text" id="logo-text-fallback" style="display: none;">foto<b>filtr</b>y.cz</span>
+            </a>
+            
+            <nav class="nav-menu" aria-label="Hlavní navigace" id="main-navigation">
+                <a href="index.html#kolekce" class="nav-link">Kolekce</a>
+                <a href="index.html#o-nas" class="nav-link">O nás</a>
+                <a href="index.html#journal" class="nav-link">Journal</a>
+                <a href="index.html#kontakt" class="nav-link">Kontakt</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="cart-toggle-btn" id="cart-trigger" aria-label="Nákupní košík">
+                    <span class="cart-icon">🛒</span>
+                    <span class="cart-count" id="cart-counter">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── PRODUCT DETAIL SECTION ── -->
+    <section class="product-detail-section" style="padding: 120px 0 60px 0; min-height: 80vh;">
+        <div class="section-container">
+            <div id="product-detail-content" style="display: none;">
+                <div class="product-detail-grid">
+                    <!-- Galerie vlevo -->
+                    <div class="product-gallery">
+                        <div class="main-image-wrap" style="margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid #22222a;">
+                            <img id="detail-main-img" src="" alt="Produkt" style="width: 100%; height: auto; display: block; object-fit: cover;">
+                        </div>
+                        <div id="detail-thumbnails" style="display: flex; gap: 10px; overflow-x: auto;">
+                            <!-- Dynamicky naplněné miniatury -->
+                        </div>
+                    </div>
+                    
+                    <!-- Informace vpravo -->
+                    <div class="product-info-wrap">
+                        <h1 id="detail-title" style="font-size: 2.5rem; margin-bottom: 15px; color: #f3f3f6;">Název produktu</h1>
+                        <div id="detail-price" style="font-size: 1.8rem; font-weight: 600; color: #d68c3f; margin-bottom: 25px;">990 Kč</div>
+                        
+                        <div class="product-variants" style="margin-bottom: 30px;">
+                            <label for="detail-variant-select" style="display: block; margin-bottom: 8px; color: #8e8e9f; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Vyberte průměr závitu:</label>
+                            <select id="detail-variant-select" style="width: 100%; max-width: 300px; padding: 12px; background: #1a1a22; border: 1px solid #22222a; color: #f3f3f6; border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 1rem;">
+                                <!-- Dynamicky naplněné varianty -->
+                            </select>
+                        </div>
+                        
+                        <button id="detail-add-to-cart" class="add-to-cart-btn cta-button primary-cta" style="width: 100%; max-width: 300px; margin-bottom: 40px; justify-content: center;">Do košíku</button>
+                        
+                        <div id="detail-description" class="product-full-description" style="color: #a0a0b2; line-height: 1.7;">
+                            <!-- Dynamicky naplněný popis -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="product-not-found" style="display: none; text-align: center; padding: 100px 0;">
+                <h2 style="font-size: 2rem; color: #f3f3f6;">Produkt nebyl nalezen.</h2>
+                <a href="index.html" class="cta-button primary-cta" style="margin-top: 20px; display: inline-flex;">Zpět na hlavní stránku</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer class="main-footer">
+        <div class="section-container footer-content">
+            <div class="footer-col">
+                <h4 class="footer-title">Fotofiltry.cz</h4>
+                <p>Nezávislý tvůrce prémiových optických filtrů pro fotografy a filmaře, kteří hledají jedinečný charakter a filmovou estetiku.</p>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Odkazy</h4>
+                <ul>
+                    <li><a href="index.html#kolekce">Filtry</a></li>
+                    <li><a href="index.html#o-nas">O nás</a></li>
+                    <li><a href="index.html#kontakt">Kontakt</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Sledujte nás</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Instagram">IG</a>
+                    <a href="#" aria-label="Vimeo">VI</a>
+                    <a href="#" aria-label="YouTube">YT</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <span id="current-year"></span> Fotofiltry.cz. Všechna práva vyhrazena. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
+        </div>
+    </footer>
+
+    <!-- ── CART DRAWER ── -->
+    <div class="cart-drawer-wrap">
+        <div class="cart-drawer-overlay" id="cart-overlay"></div>
+        <div class="cart-drawer-content" id="cart-drawer" aria-hidden="true">
+            <div class="cart-drawer-header">
+                <h3>Váš výběr</h3>
+                <button class="close-cart-btn" id="cart-close" aria-label="Zavřít košík">×</button>
+            </div>
+            
+            <div class="cart-items-list" id="cart-items-container">
+                <!-- Dynamically filled -->
+                <p class="cart-empty-message">Košík je prázdný.</p>
+            </div>
+            
+            <div class="cart-drawer-footer" id="cart-footer">
+                <div class="cart-total-line">
+                    <span>Mezisoučet:</span>
+                    <strong id="cart-total-price">0 Kč</strong>
+                </div>
+                <p class="cart-tax-info">Cena je konečná. Doprava bude spočítána v dalším kroku.</p>
+                <!-- Změna u tlačítka pro detail - přesměruje na košík/kontakt na indexu -->
+                <a href="index.html#kontakt" class="checkout-button" id="cart-checkout" style="display:block; text-align:center; text-decoration:none;">Pokračovat k objednávce</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to custom script -->
+    <script src="scripts.js"></script>
+</body>
+</html>

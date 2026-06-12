@@ -1,5 +1,5 @@
 {
-  "name": "evalangrova-eshop",
+  "name": "loga-l-code",
   "version": "1.0.0",
   "description": "Serverless backend and Stripe integration for EvaLangrova e-shop",
   "main": "api/checkout.js",
@@ -8,6 +8,6 @@
   },
   "devDependencies": {},
   "scripts": {
-    "dev": "vercel dev"
+    "build": "echo 'No build required'"
   }
 }

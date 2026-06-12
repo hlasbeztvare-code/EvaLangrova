@@ -56,6 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
             var name = this.getAttribute('data-name');
             var price = parseInt(this.getAttribute('data-price'), 10);
             var img = this.getAttribute('data-img');
+            var variant = this.getAttribute('data-variant') || '';
+
+            if (variant) {
+                name = name + ' (' + variant + ')';
+                id = id + '_' + variant;
+            }
 
             // Hledání duplicity
             var existingItem = cart.find(function(item) { return item.id === id; });
@@ -67,7 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     name: name,
                     price: price,
                     img: img,
-                    quantity: 1
+                    quantity: 1,
+                    variant: variant
                 });
             }
 
@@ -343,89 +350,145 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('/products.json')
             .then(function(res) { return res.json(); })
             .then(function(products) {
-                products.forEach(function(p) {
-                    var card = null;
-                    if (p.id === 'kaleidoscope') card = document.getElementById('card-kaleidoscope');
-                    else if (p.id === 'fog') card = document.getElementById('card-fog');
-                    else if (p.id === 'halo') card = document.getElementById('card-halo');
+                var urlParams = new URLSearchParams(window.location.search);
+                var productId = urlParams.get('id');
 
-                    if (card) {
-                        // 1. Nastavení ceny
-                        var priceEl = card.querySelector('.product-price');
-                        if (priceEl) priceEl.textContent = p.price;
-
-                        // 2. Vstříknutí KOMPLETNÍHO plného HTML popisu ze starého Shoptetu
-                        var descEl = card.querySelector('.product-desc');
-                        if (descEl) {
-                            descEl.innerHTML = p.description; // innerHTML, ať fungují odrážky a formátování!
-                        }
-
-                        // 3. Hlavní fotka
-                        var imgEl = card.querySelector('.product-img');
-                        if (imgEl && p.localImg) imgEl.src = p.localImg;
-
-                        // 4. AUTOMATICKÉ VYTVOŘENÍ GALERIE (Pokud má produkt víc fotek)
-                        if (p.images && p.images.length > 1) {
-                            var imgWrap = card.querySelector('.card-image-wrap');
-                            
-                            // Smažeme případnou starou lištu miniatur, ať se neduplikuje
-                            var oldGallery = card.querySelector('.product-thumb-gallery');
-                            if (oldGallery) oldGallery.remove();
-
-                            // Vytvoříme flex kontejner pro miniatury pod hlavní fotkou
-                            var galleryDiv = document.createElement('div');
-                            galleryDiv.className = 'product-thumb-gallery';
-                            galleryDiv.style.display = 'flex';
-                            galleryDiv.style.gap = '5px';
-                            galleryDiv.style.marginTop = '10px';
-                            galleryDiv.style.overflowX = 'auto';
-
-                            p.images.forEach(function(imgSrc) {
+                // Detail produktu (product.html)
+                if (window.location.pathname.includes('product.html')) {
+                    var detailContent = document.getElementById('product-detail-content');
+                    var notFound = document.getElementById('product-not-found');
+                    
+                    var product = products.find(function(p) { return p.id === productId; });
+                    
+                    if (product) {
+                        detailContent.style.display = 'block';
+                        document.title = product.name + ' — Fotofiltry.cz';
+                        
+                        document.getElementById('detail-title').textContent = product.name;
+                        document.getElementById('detail-price').textContent = product.price;
+                        document.getElementById('detail-description').innerHTML = product.description;
+                        
+                        var mainImg = document.getElementById('detail-main-img');
+                        mainImg.src = product.localImg;
+                        
+                        // Miniatury
+                        var thumbsContainer = document.getElementById('detail-thumbnails');
+                        if (product.images && product.images.length > 1) {
+                            product.images.forEach(function(imgSrc) {
                                 var thumb = document.createElement('img');
                                 thumb.src = imgSrc;
-                                thumb.style.width = '45px';
-                                thumb.style.height = '45px';
+                                thumb.style.width = '60px';
+                                thumb.style.height = '60px';
                                 thumb.style.objectFit = 'cover';
                                 thumb.style.borderRadius = '4px';
                                 thumb.style.cursor = 'pointer';
-                                thumb.style.border = '1px solid #22222a';
-
-                                // Interaktivní proklik - klik na miniaturu změní hlavní velkou fotku
+                                thumb.style.border = '2px solid transparent';
+                                
                                 thumb.addEventListener('click', function() {
-                                    imgEl.src = imgSrc;
-                                    var btn = card.querySelector('.add-to-cart-btn');
-                                    if (btn) btn.setAttribute('data-img', imgSrc);
+                                    mainImg.src = imgSrc;
                                 });
-
-                                galleryDiv.appendChild(thumb);
+                                thumbsContainer.appendChild(thumb);
                             });
-
-                            imgWrap.appendChild(galleryDiv);
                         }
+                        
+                        // Varianty
+                        var variantSelect = document.getElementById('detail-variant-select');
+                        if (product.variants && product.variants.length > 0) {
+                            product.variants.forEach(function(v) {
+                                var opt = document.createElement('option');
+                                opt.value = v;
+                                opt.textContent = v;
+                                variantSelect.appendChild(opt);
+                            });
+                        } else {
+                            variantSelect.parentElement.style.display = 'none';
+                        }
+                        
+                        // Tlačítko přidání
+                        var addBtn = document.getElementById('detail-add-to-cart');
+                        var priceVal = parseInt(product.price.replace(/[^0-9]/g, ''), 10) || 990;
+                        
+                        addBtn.setAttribute('data-id', product.id);
+                        addBtn.setAttribute('data-name', product.name);
+                        addBtn.setAttribute('data-price', priceVal);
+                        addBtn.setAttribute('data-img', product.localImg);
+                        if (product.variants && product.variants.length > 0) {
+                            addBtn.setAttribute('data-variant', product.variants[0]);
+                        }
+                        
+                        variantSelect.addEventListener('change', function(e) {
+                            addBtn.setAttribute('data-variant', e.target.value);
+                        });
+                        
+                        if (product.inStock === false) {
+                            addBtn.disabled = true;
+                            addBtn.textContent = 'Vyprodáno';
+                            addBtn.style.background = '#22222a';
+                            addBtn.style.color = '#8e8e9f';
+                            addBtn.style.cursor = 'not-allowed';
+                        }
+                        
+                        // Přidat listener, protože tlačítko je dynamické / nemusí být zohledněno nahoře
+                        addBtn.addEventListener('click', function() {
+                            var id = this.getAttribute('data-id');
+                            var name = this.getAttribute('data-name');
+                            var price = parseInt(this.getAttribute('data-price'), 10);
+                            var img = this.getAttribute('data-img');
+                            var variant = this.getAttribute('data-variant') || '';
 
-                        // 5. Update nákupního tlačítka
-                        var btn = card.querySelector('.add-to-cart-btn');
-                        if (btn) {
-                            var priceVal = parseInt(p.price.replace(/[^0-9]/g, ''), 10) || 990;
-                            btn.setAttribute('data-price', priceVal);
-                            if (p.localImg) btn.setAttribute('data-img', p.localImg);
-                            
-                            if (p.inStock === false) {
-                                btn.disabled = true;
-                                btn.textContent = 'Vyprodáno';
-                                btn.style.background = '#22222a';
-                                btn.style.color = '#8e8e9f';
-                                btn.style.cursor = 'not-allowed';
+                            if (variant) {
+                                name = name + ' (' + variant + ')';
+                                id = id + '_' + variant;
+                            }
+
+                            var existingItem = cart.find(function(item) { return item.id === id; });
+                            if (existingItem) {
+                                existingItem.quantity += 1;
                             } else {
-                                btn.disabled = false;
-                                btn.textContent = 'Do košíku';
-                                btn.style.background = '';
-                                btn.style.color = '';
-                                btn.style.cursor = '';
+                                cart.push({ id: id, name: name, price: price, img: img, quantity: 1, variant: variant });
+                            }
+                            saveCart();
+                            updateCartUI();
+                            toggleCart(true);
+                        });
+                        
+                    } else {
+                        notFound.style.display = 'block';
+                    }
+                } else {
+                    // Hlavní stránka
+                    products.forEach(function(p) {
+                        var card = null;
+                        if (p.id === 'kaleidoscope') card = document.getElementById('card-kaleidoscope');
+                        else if (p.id === 'fog') card = document.getElementById('card-fog');
+                        else if (p.id === 'halo') card = document.getElementById('card-halo');
+
+                        if (card) {
+                            // 1. Nastavení ceny
+                            var priceEl = card.querySelector('.product-price');
+                            if (priceEl) priceEl.textContent = p.price;
+
+                            // 2. Vstříknutí ZKRÁCENÉHO popisu (na hlavní straně)
+                            var descEl = card.querySelector('.product-desc');
+                            if (descEl && p.shortDescription) {
+                                descEl.innerHTML = p.shortDescription;
+                            }
+
+                            // 3. Hlavní fotka
+                            var imgEl = card.querySelector('.product-img');
+                            if (imgEl && p.localImg) imgEl.src = p.localImg;
+
+                            // 4. Update tlačítka detailu
+                            var viewBtn = card.querySelector('.view-detail-btn');
+                            if (p.inStock === false && viewBtn) {
+                                viewBtn.textContent = 'Vyprodáno';
+                                viewBtn.style.pointerEvents = 'none';
+                                viewBtn.style.background = '#22222a';
+                                viewBtn.style.color = '#8e8e9f';
                             }
                         }
-                    }
-                });
+                    });
+                }
             })
             .catch(function(err) {
                 console.error('Failed to load products.json:', err);
