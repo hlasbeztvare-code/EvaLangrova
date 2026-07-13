@@ -4,9 +4,10 @@
   "description": "Serverless backend and Stripe integration for EvaLangrova e-shop",
   "main": "api/checkout.js",
   "dependencies": {
+    "nodemailer": "^9.0.3",
+    "pdfkit": "^0.19.1",
     "stripe": "^14.0.0"
   },
-  "devDependencies": {},
   "scripts": {
     "build": "echo 'No build required'"
   }

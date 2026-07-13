@@ -443,6 +443,18 @@
             <button id="logout-btn" class="btn btn-secondary">Odhlásit se</button>
         </header>
 
+        <!-- Web Content Section -->
+        <section class="blog-section" style="margin-bottom: 40px;">
+            <h2 class="section-title">Obsah webu (Texty a nadpisy)</h2>
+            <form id="content-form">
+                <div id="content-fields-container" style="display: grid; gap: 15px; margin-bottom: 20px;">
+                    <!-- Dynamically filled -->
+                </div>
+                <button type="submit" class="btn">Uložit obsah webu</button>
+                <div id="content-feedback" class="feedback"></div>
+            </form>
+        </section>
+
         <!-- Products Section -->
         <section>
             <h2 class="section-title">Produkty</h2>
@@ -565,7 +577,95 @@
             dashboardPanel.style.display = 'block';
             loadProducts();
             loadBlogPosts();
+            loadWebContent();
         }
+
+        // ── WEB CONTENT MANAGEMENT ──
+        let currentWebContent = {};
+        const contentLabels = {
+            heroTitle: 'Hero Nadpis (HTML)',
+            heroSubtitle: 'Hero Podnadpis',
+            productsTitle: 'Kolekce Nadpis',
+            productsSubtitle: 'Kolekce Podnadpis',
+            aboutLabel: 'O nás - Štítek',
+            aboutTitle: 'O nás - Nadpis',
+            aboutText: 'O nás - Text (HTML)',
+            journalTitle: 'Blog Nadpis',
+            journalSubtitle: 'Blog Podnadpis',
+            contactTitle: 'Kontakt Nadpis',
+            contactDesc: 'Kontakt Popis',
+            contactAddress: 'Kontakt Adresa',
+            contactEmail: 'Kontakt E-mail'
+        };
+
+        async function loadWebContent() {
+            try {
+                const res = await fetch('/content.json');
+                currentWebContent = await res.json();
+                
+                const container = document.getElementById('content-fields-container');
+                container.innerHTML = '';
+
+                Object.keys(contentLabels).forEach(key => {
+                    const value = currentWebContent[key] || '';
+                    const isTextArea = key.includes('Text') || key.includes('Subtitle') || key.includes('Desc');
+                    
+                    const div = document.createElement('div');
+                    div.className = 'form-group';
+                    div.style.marginBottom = '0';
+                    
+                    if (isTextArea) {
+                        div.innerHTML = `
+                            <label>${contentLabels[key]}</label>
+                            <textarea id="content-input-${key}" rows="3">${value}</textarea>
+                        `;
+                    } else {
+                        div.innerHTML = `
+                            <label>${contentLabels[key]}</label>
+                            <input type="text" id="content-input-${key}" value="${value}">
+                        `;
+                    }
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                console.error('Error loading content:', err);
+            }
+        }
+
+        document.getElementById('content-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const feedback = document.getElementById('content-feedback');
+            feedback.textContent = 'Ukládám...';
+            feedback.className = 'feedback';
+            
+            const newContent = {};
+            Object.keys(contentLabels).forEach(key => {
+                const input = document.getElementById(`content-input-${key}`);
+                if (input) newContent[key] = input.value;
+            });
+
+            try {
+                const res = await fetch('/.netlify/functions/admin?action=save-content', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(newContent)
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    feedback.className = 'feedback success';
+                    feedback.textContent = 'Obsah byl úspěšně uložen!';
+                    currentWebContent = data.content;
+                } else {
+                    feedback.textContent = data.error || 'Aktualizace selhala';
+                }
+            } catch (err) {
+                feedback.textContent = 'Chyba serveru';
+            }
+        });
 
         // ── PRODUCTS MANAGEMENT ──
         async function loadProducts() {
@@ -589,7 +689,10 @@
                             <input type="file" id="file-${p.id}" accept="image/*" style="display:none">
                         </div>
 
-                        <h3 style="margin-bottom: 15px; font-weight: 600;">${p.name}</h3>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Název produktu</label>
+                            <input type="text" id="name-${p.id}" value="${p.name}" required>
+                        </div>
 
                         <div class="form-group">
                             <label>Cena (Kč)</label>
@@ -605,8 +708,23 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Popis</label>
+                            <label>Krátký popis (Karta produktu)</label>
+                            <textarea id="shortDesc-${p.id}" rows="2">${p.shortDescription || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Detailní popis (Stránka produktu)</label>
                             <textarea id="desc-${p.id}" rows="4">${p.description || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Varianty (oddělené čárkou, např. 77mm, 82mm)</label>
+                            <input type="text" id="variants-${p.id}" value="${(p.variants || []).join(', ')}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fotky galerie (URL, oddělené čárkou)</label>
+                            <textarea id="images-${p.id}" rows="2">${(p.images || []).join(', ')}</textarea>
                         </div>
 
                         <button class="btn" onclick="updateProduct('${p.id}')">Uložit produkt</button>
@@ -688,9 +806,14 @@
         }
 
         async function updateProduct(productId) {
+            const name = document.getElementById(`name-${productId}`).value;
             const price = document.getElementById(`price-${productId}`).value;
             const inStock = document.getElementById(`stock-${productId}`).checked;
+            const shortDescription = document.getElementById(`shortDesc-${productId}`).value;
             const description = document.getElementById(`desc-${productId}`).value;
+            const variants = document.getElementById(`variants-${productId}`).value.split(',').map(v => v.trim()).filter(Boolean);
+            const images = document.getElementById(`images-${productId}`).value.split(',').map(v => v.trim()).filter(Boolean);
+            
             const preview = document.getElementById(`preview-img-${productId}`);
             const image = preview.dataset.uploadedUrl;
             const feedback = document.getElementById(`feedback-${productId}`);
@@ -707,9 +830,13 @@
                     },
                     body: JSON.stringify({
                         id: productId,
+                        name,
                         price,
                         inStock,
+                        shortDescription,
                         description,
+                        variants,
+                        images,
                         image
                     })
                 });

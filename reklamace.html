@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reklamace a vrácení | Fotofiltry.cz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .form-page-container {
+            max-width: 800px;
+            margin: 150px auto 100px;
+            padding: 0 5%;
+        }
+        .form-page-title {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .form-page-desc {
+            text-align: center;
+            color: var(--color-text-muted);
+            margin-bottom: 40px;
+        }
+        .custom-form .form-group {
+            margin-bottom: 25px;
+        }
+        .custom-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--color-text-muted);
+        }
+        .custom-form input, .custom-form textarea, .custom-form select {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-main);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition-fast);
+            font-family: 'Outfit', sans-serif;
+        }
+        .custom-form input:focus, .custom-form textarea:focus, .custom-form select:focus {
+            border-color: var(--color-accent);
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.2);
+        }
+        .custom-form textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── BACKGROUND refract grid ── -->
+    <div class="bg-glow" id="bg-glow" aria-hidden="true"></div>
+
+    <!-- ── HEADER ── -->
+    <header class="main-header" id="header-section">
+        <div class="header-container">
+            <a href="index.html" class="brand-logo" id="logo-home">
+                <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-text-fallback').style.display='inline';" style="max-height: 40px; width: auto; display: block;">
+                <span class="logo-text" id="logo-text-fallback" style="display: none;">foto<b>filtr</b>y.cz</span>
+            </a>
+            
+            <nav class="nav-menu" aria-label="Hlavní navigace" id="main-navigation">
+                <a href="index.html#kolekce" class="nav-link">Kolekce</a>
+                <a href="index.html#o-nas" class="nav-link">O nás</a>
+                <a href="index.html#journal" class="nav-link">Journal</a>
+                <a href="index.html#hodnoceni" class="nav-link">Hodnocení</a>
+                <a href="kontakt.html" class="nav-link">Kontakt</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="cart-toggle-btn" id="cart-trigger" aria-label="Nákupní košík">
+                    <span class="cart-icon">🛒</span>
+                    <span class="cart-count" id="cart-counter">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="form-page-container">
+        <h1 class="form-page-title">Reklamace a vrácení zboží</h1>
+        <p class="form-page-desc">Něco není v pořádku? Vyplňte formulář níže a my se postaráme o rychlé vyřešení. Zboží můžete vrátit do 14 dnů bez udání důvodu.</p>
+        
+        <div class="glassmorphism-card" style="padding: 40px;">
+            <form id="reklamace-form" class="custom-form">
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Jméno a příjmení *</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail *</label>
+                        <input type="email" required>
+                    </div>
+                </div>
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Číslo objednávky *</label>
+                        <input type="text" required placeholder="Např. 2026001">
+                    </div>
+                    <div class="form-group">
+                        <label>Typ požadavku *</label>
+                        <select required>
+                            <option value="vraceni">Vrácení zboží (do 14 dnů)</option>
+                            <option value="vymena">Výměna zboží</option>
+                            <option value="reklamace">Reklamace (vada produktu)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Číslo bankovního účtu (pro vrácení peněz)</label>
+                    <input type="text" placeholder="Při výměně zboží není nutné vyplňovat">
+                </div>
+                <div class="form-group">
+                    <label>Popis problému / Důvod vrácení *</label>
+                    <textarea required placeholder="Prosím, popište detailně Váš požadavek..."></textarea>
+                </div>
+                <button type="submit" class="cta-button primary-cta" style="width:100%;">Odeslat požadavek</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- ── CART DRAWER ── -->
+    <div class="cart-drawer" id="cart-drawer" aria-hidden="true">
+        <div class="cart-drawer-overlay" id="cart-overlay"></div>
+        <div class="cart-drawer-content">
+            <div class="cart-drawer-header">
+                <h2>Váš košík</h2>
+                <button class="close-cart-btn" id="cart-close" aria-label="Zavřít košík">×</button>
+            </div>
+            <div class="cart-items-list" id="cart-items-container">
+                <p class="cart-empty-message">Košík je prázdný.</p>
+            </div>
+            <div class="cart-drawer-footer" id="cart-footer">
+                <div class="cart-total-line">
+                    <span>Celkem k úhradě</span>
+                    <span class="cart-total-price" id="cart-total-price">0 Kč</span>
+                </div>
+                <a href="checkout.html" class="checkout-button" id="cart-checkout" style="display:block; text-align:center; text-decoration:none;">Dokončit objednávku</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="main-footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="max-height: 40px; width: auto; display: block; margin-bottom: 15px;">
+                <div class="f-logo-text" style="display: none;">foto<b>filtr</b>y.cz</div>
+                <p class="f-brand-tagline">Nekompromisní optická kvalita a jedinečný look pro moderní tvůrce.</p>
+            </div>
+            
+            <div class="footer-links-grid">
+                <div class="footer-col">
+                    <h4>Kolekce</h4>
+                    <a href="index.html#kolekce">Prism Series</a>
+                    <a href="index.html#kolekce">Fog Series</a>
+                    <a href="index.html#kolekce">Halo Series</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Informace</h4>
+                    <a href="kontakt.html">Napište nám</a>
+                    <a href="reklamace.html">Reklamace a vrácení</a>
+                    <a href="obchodni-podminky.html">Obchodní podmínky</a>
+                    <a href="ochrana-soukromi.html">Ochrana soukromí</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Sledujte nás</h4>
+                    <a href="https://instagram.com/fotofiltrycz" target="_blank" aria-label="Instagram">Instagram</a>
+                    <a href="https://vimeo.com/fotofiltrycz" target="_blank" aria-label="Vimeo">Vimeo</a>
+                    <a href="index.html#journal">Studio Journal</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
+        </div>
+    </footer>
+
+    <script src="scripts.js"></script>
+    <script>
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const btn = form.querySelector('button[type="submit"]');
+                const origText = btn.textContent;
+                btn.textContent = 'Odesílám...';
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.textContent = 'Odesláno! Brzy se Vám ozveme.';
+                    btn.style.background = '#4CAF50';
+                    btn.style.color = '#fff';
+                    btn.style.boxShadow = 'none';
+                    form.reset();
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>

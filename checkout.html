@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokladna | Fotofiltry.cz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="custom-styles.css">
+    <!-- Packeta Widget -->
+    <script src="https://widget.packeta.com/v6/www/js/library.js"></script>
+    
+</head>
+<body>
+    <!-- HEADER -->
+    
+    <!-- ── BACKGROUND refract grid ── -->
+    <div class="bg-glow" id="bg-glow" aria-hidden="true"></div>
+
+    <!-- ── HEADER ── -->
+    <header class="main-header" id="header-section">
+        <div class="header-container">
+            <a href="index.html" class="brand-logo" id="logo-home">
+                <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-text-fallback').style.display='inline';" style="max-height: 40px; width: auto; display: block;">
+                <span class="logo-text" id="logo-text-fallback" style="display: none;">foto<b>filtr</b>y.cz</span>
+            </a>
+            
+            <nav class="nav-menu" aria-label="Hlavní navigace" id="main-navigation">
+                <a href="index.html#kolekce" class="nav-link">Kolekce</a>
+                <a href="index.html#o-nas" class="nav-link">O nás</a>
+                <a href="index.html#journal" class="nav-link">Journal</a>
+                <a href="index.html#hodnoceni" class="nav-link">Hodnocení</a>
+                <a href="index.html#kontakt" class="nav-link">Kontakt</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="cart-toggle-btn" id="cart-trigger" aria-label="Nákupní košík">
+                    <span class="cart-icon">🛒</span>
+                    <span class="cart-count" id="cart-counter">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+    
+    <main class="checkout-page" style="max-width: 1500px; margin: 0 auto; padding: 120px 20px 60px;">
+        
+        <!-- BREADCRUMBS -->
+        <nav aria-label="breadcrumb" style="margin-bottom: 40px; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;">
+            <a href="index.html" style="color: var(--color-text-muted); text-decoration: none; transition: color 0.3s;">Domů</a> 
+            <span style="color: var(--color-text-muted); margin: 0 10px;">/</span> 
+            <a href="#" id="breadcrumb-cart" style="color: var(--color-text-muted); text-decoration: none; transition: color 0.3s;">Košík</a>
+            <span style="color: var(--color-text-muted); margin: 0 10px;">/</span> 
+            <span style="color: var(--color-accent);">Pokladna</span>
+        </nav>
+
+        <form id="checkout-form" class="checkout-form-2col">
+            
+            <!-- SLOUPEC 1: KONTAKTNÍ ÚDAJE -->
+            <div class="checkout-main"><div class="checkout-col">
+                <div class="checkout-block glassmorphism-card">
+                    <h2>1. Dodací údaje</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Jméno a příjmení *</label>
+                            <input type="text" id="billing-name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>E-mail *</label>
+                            <input type="email" id="billing-email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Telefon *</label>
+                            <input type="tel" id="billing-phone" required>
+                        </div>
+                    </div>
+                    
+                    <h2 style="margin-top: 30px;">Fakturační adresa</h2>
+                    <div class="form-group">
+                        <label>Ulice a číslo popisné *</label>
+                        <input type="text" id="billing-street" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Město *</label>
+                            <input type="text" id="billing-city" required>
+                        </div>
+                        <div class="form-group">
+                            <label>PSČ *</label>
+                            <input type="text" id="billing-zip" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLOUPEC 2: DOPRAVA A PLATBA -->
+            <div class="checkout-col">
+                <div class="checkout-block glassmorphism-card" style="margin-bottom: 30px;">
+                    <h2>2. Doprava</h2>
+                    
+                    <label class="radio-option selected" id="opt-zasilkovna">
+                        <input type="radio" name="shipping" value="zasilkovna" checked onchange="updateTotals()">
+                        <div class="radio-content">
+                            <div>
+                                <div class="radio-title">Zásilkovna</div></div>
+                                <div class="radio-desc">Doručení na výdejní místo</div>
+                            </div>
+                            <div class="radio-price">89 Kč</div>
+                        </div>
+                    </label>
+                    
+                    <div class="zasilkovna-widget-container active" id="zasilkovna-widget-container">
+                        <button type="button" id="packeta-widget-btn" class="zasilkovna-btn">Vybrat výdejní místo</button>
+                        <div id="zasilkovna-selected"></div>
+                        <input type="hidden" id="zasilkovna-id" name="zasilkovna-id">
+                    </div>
+                    
+                    <label class="radio-option" id="opt-osobni">
+                        <input type="radio" name="shipping" value="osobni" onchange="updateTotals()">
+                        <div class="radio-content">
+                            <div>
+                                <div class="radio-title">Osobní odběr</div>
+                                <div class="radio-desc">Studio Praha 7</div>
+                            </div>
+                            <div class="radio-price">Zdarma</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="checkout-block glassmorphism-card">
+                    <h2>3. Platba</h2>
+                    
+                    <label class="radio-option selected" id="opt-card">
+                        <input type="radio" name="payment" value="card" checked>
+                        <div class="radio-content">
+                            <div>
+                                <div class="radio-title">Platební karta</div>
+                                <div class="radio-desc">Bezpečně online</div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <label class="radio-option" id="opt-transfer">
+                        <input type="radio" name="payment" value="transfer">
+                        <div class="radio-content">
+                            <div>
+                                <div class="radio-title">Převodem</div>
+                                <div class="radio-desc">Platba předem na účet</div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- SLOUPEC 3: SHRNUTÍ -->
+            <div class="checkout-sidebar">
+                <div class="checkout-block glassmorphism-card" style="position: sticky; top: 120px;">
+                    <h2>Vaše objednávka</h2>
+                    <div id="checkout-items-container">
+                        <!-- Načítá se JS -->
+                    </div>
+                    
+                    <div class="summary-totals">
+                        <div class="summary-row">
+                            <span>Mezisoučet</span>
+                            <span id="summary-subtotal">0 Kč</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Doprava</span>
+                            <span id="summary-shipping">89 Kč</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Celkem k úhradě</span>
+                            <span id="summary-total">0 Kč</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="cta-button primary-cta" id="submit-btn" style="width: 100%; margin-top: 20px;">Dokončit objednávku a zaplatit</button>
+                    <div id="checkout-feedback" style="color: var(--danger); margin-top: 15px; font-weight: 500; text-align: center;"></div>
+                    
+                    <p style="font-size: 0.8rem; color: var(--color-text-muted); text-align: center; margin-top: 25px;">
+                        Odesláním souhlasíte s <a href="obchodni-podminky.html" style="color:#fff;">obchodními podmínkami</a> a <a href="ochrana-soukromi.html" style="color:#fff;">ochranou soukromí</a>.
+                    </p>
+                    
+                    <img src="images/logo.png" style="width: 100%; height: auto; max-width: 160px; margin: 40px auto 0; display: block;" alt="fotofiltry.cz">
+                </div>
+            </div>
+        </form>
+    </main>
+
+
+    <!-- ── FOOTER ── -->
+    
+    <!-- ── CART DRAWER ── -->
+    <div class="cart-drawer" id="cart-drawer" aria-hidden="true">
+        <div class="cart-drawer-overlay" id="cart-overlay"></div>
+        <div class="cart-drawer-content">
+            <div class="cart-drawer-header">
+                <h2>Váš košík</h2>
+                <button class="close-cart-btn" id="cart-close" aria-label="Zavřít košík">×</button>
+            </div>
+            <div class="cart-items-list" id="cart-items-container">
+                <p class="cart-empty-message">Košík je prázdný.</p>
+            </div>
+            <div class="cart-drawer-footer" id="cart-footer">
+                <div class="cart-total-line">
+                    <span>Celkem k úhradě</span>
+                    <span class="cart-total-price" id="cart-total-price">0 Kč</span>
+                </div>
+                <a href="checkout.html" class="checkout-button" id="cart-checkout" style="display:block; text-align:center; text-decoration:none;">Dokončit objednávku</a>
+            </div>
+        </div>
+    </div>
+
+<footer class="main-footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="max-height: 40px; width: auto; display: block; margin-bottom: 15px;">
+                <div class="f-logo-text" style="display: none;">foto<b>filtr</b>y.cz</div>
+                <p class="f-brand-tagline">Nekompromisní optická kvalita a jedinečný look pro moderní tvůrce.</p>
+            </div>
+            
+            <div class="footer-links-grid">
+                <div class="footer-col">
+                    <h4>Kolekce</h4>
+                    <a href="index.html#kolekce">Prism Series</a>
+                    <a href="index.html#kolekce">Fog Series</a>
+                    <a href="index.html#kolekce">Halo Series</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Informace</h4>
+                    <a href="kontakt.html">Napište nám</a>
+                    <a href="reklamace.html">Reklamace a vrácení</a>
+                    <a href="obchodni-podminky.html">Obchodní podmínky</a>
+                    <a href="ochrana-soukromi.html">Ochrana soukromí</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Sledujte nás</h4>
+                    <a href="https://instagram.com/fotofiltrycz" target="_blank" aria-label="Instagram">Instagram</a>
+                    <a href="https://vimeo.com/fotofiltrycz" target="_blank" aria-label="Vimeo">Vimeo</a>
+                    <a href="index.html#journal">Studio Journal</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
+        </div>
+    </footer>
+    <script src="scripts.js"></script>
+
+    <script>
+        // Init cart from localStorage
+        let checkoutCart = JSON.parse(localStorage.getItem('fotofiltry_cart')) || [];
+        let shippingCost = 89;
+        
+        function renderCheckoutCart() {
+            const container = document.getElementById('checkout-items-container');
+            if (checkoutCart.length === 0) {
+                container.innerHTML = '<p>Váš košík je prázdný.</p>';
+                document.getElementById('submit-btn').disabled = true;
+                return;
+            }
+
+            let html = '';
+            let subtotal = 0;
+
+            checkoutCart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                html += `
+                    <div class="summary-item">
+                        <img src="${item.img}" class="summary-item-img" onerror="this.src='https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80'">
+                        <div class="summary-item-info">
+                            <div class="summary-item-title">${item.name}</div>
+                            <div style="color: var(--color-text-muted); font-size: 0.9rem;">${item.quantity} ks</div>
+                        </div>
+                        <div class="summary-item-price">${itemTotal} Kč</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('summary-subtotal').textContent = `${subtotal} Kč`;
+            updateTotals(subtotal);
+        }
+
+        function updateTotals(subtotalOverride) {
+            let subtotal = subtotalOverride;
+            if (subtotal === undefined) {
+                subtotal = checkoutCart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            }
+
+            const shippingMethod = document.querySelector('input[name="shipping"]:checked').value;
+            
+            if (shippingMethod === 'zasilkovna') {
+                shippingCost = 89;
+            } else if (shippingMethod === 'alzabox') {
+                shippingCost = 79;
+            } else {
+                shippingCost = 0;
+            }
+
+            // Highlight selected radio
+            document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`input[value="${shippingMethod}"]`).closest('.radio-option').classList.add('selected');
+            
+            const paymentMethod = document.querySelector('input[name="payment"]:checked');
+            if(paymentMethod) {
+                paymentMethod.closest('.radio-option').classList.add('selected');
+            }
+
+            // Show/Hide Zásilkovna/AlzaBox Widget
+            const zasilkovnaWidget = document.getElementById('zasilkovna-widget-container');
+            const alzaboxWidget = document.getElementById('alzabox-widget-container');
+            
+            zasilkovnaWidget.classList.remove('active');
+            alzaboxWidget.style.display = 'none';
+
+            if (shippingMethod === 'zasilkovna') {
+                zasilkovnaWidget.classList.add('active');
+            } else if (shippingMethod === 'alzabox') {
+                alzaboxWidget.style.display = 'block';
+            }
+
+            document.getElementById('summary-shipping').textContent = `${shippingCost} Kč`;
+            document.getElementById('summary-total').textContent = `${subtotal + shippingCost} Kč`;
+        }
+
+        // Zásilkovna Widget setup
+        const packetaOptions = { valueFormat: "Odkaz na pobočku: id" };
+        document.getElementById('packeta-widget-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if(typeof Packeta === 'undefined') {
+                alert("Zásilkovna widget se ještě načítá. Zkuste to za chvíli.");
+                return;
+            }
+            Packeta.Widget.pick(packetaApiKey, function(point) {
+                if (point) {
+                    document.getElementById('zasilkovna-id').value = point.id;
+                    document.getElementById('zasilkovna-selected').innerHTML = `<strong>Vybráno:</strong> ${point.name}, ${point.city}`;
+                    document.getElementById('zasilkovna-error').style.display = 'none';
+                }
+            }, packetaOptions);
+        });
+
+        // Toggle account password block
+        const createAccountCb = document.getElementById('create-account-cb');
+        const accountPasswordBlock = document.getElementById('account-password-block');
+        const accountPasswordInput = document.getElementById('account-password');
+        
+        createAccountCb.addEventListener('change', function() {
+            accountPasswordBlock.style.display = this.checked ? 'block' : 'none';
+            accountPasswordInput.required = this.checked;
+        });
+
+        // Toggle different shipping address
+        const diffShippingCheckbox = document.getElementById('different-shipping');
+        const shippingBlock = document.getElementById('shipping-address-block');
+        diffShippingCheckbox.addEventListener('change', function() {
+            shippingBlock.style.display = this.checked ? 'block' : 'none';
+            const requiredFields = ['shipping-street', 'shipping-city', 'shipping-zip'];
+            requiredFields.forEach(id => document.getElementById(id).required = this.checked);
+        });
+
+        // Listen for radio changes
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', () => updateTotals());
+        });
+
+        // WIZARD NAVIGATION
+        function showStep(stepNum) {
+            document.querySelectorAll('.checkout-step').forEach(step => step.classList.remove('active'));
+            document.querySelectorAll('.step-item').forEach((indicator, index) => {
+                indicator.classList.remove('active', 'completed');
+                if (index < stepNum - 1) {
+                    indicator.classList.add('completed');
+                } else if (index === stepNum - 1) {
+                    indicator.classList.add('active');
+                }
+            });
+            document.getElementById(`step-${stepNum}`).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextStep(stepNum) {
+            // Validate step 1
+            if (stepNum === 2) {
+                const step1Inputs = document.getElementById('step-1').querySelectorAll('input[required]');
+                let isValid = true;
+                step1Inputs.forEach(input => {
+                    if (!input.reportValidity()) {
+                        isValid = false;
+                    }
+                });
+                if (!isValid) return;
+            }
+
+            // Validate step 2
+            if (stepNum === 3) {
+                const shippingMethod = document.querySelector('input[name="shipping"]:checked').value;
+                if (shippingMethod === 'zasilkovna') {
+                    if (!document.getElementById('zasilkovna-id').value) {
+                        document.getElementById('zasilkovna-error').style.display = 'block';
+                        return;
+                    }
+                } else if (shippingMethod === 'alzabox') {
+                    if (!document.getElementById('alzabox-id').value) {
+                        // Placeholder validation pro AlzaBox
+                        // Zde by normálně vyběhl error, ale protože jde o placeholder, projdeme.
+                        console.log('AlzaBox ID chybí (placeholder mode).');
+                    }
+                }
+            }
+
+            showStep(stepNum);
+        }
+
+        function prevStep(stepNum) {
+            showStep(stepNum);
+        }
+
+        // Form submission
+        document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const feedback = document.getElementById('checkout-feedback');
+            
+            if (checkoutCart.length === 0) {
+                feedback.textContent = 'Košík je prázdný.';
+                return;
+            }
+
+            feedback.textContent = '';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Zpracovávám...';
+
+            const diffShipping = document.getElementById('different-shipping').checked;
+            const createAccount = document.getElementById('create-account-cb').checked;
+            const shippingMethod = document.querySelector('input[name="shipping"]:checked').value;
+
+            const orderData = {
+                customer: {
+                    name: document.getElementById('billing-name').value,
+                    email: document.getElementById('billing-email').value,
+                    phone: document.getElementById('billing-phone').value,
+                    createAccount: createAccount,
+                    password: createAccount ? document.getElementById('account-password').value : null
+                },
+                billing: {
+                    street: document.getElementById('billing-street').value,
+                    city: document.getElementById('billing-city').value,
+                    zip: document.getElementById('billing-zip').value
+                },
+                shipping: diffShipping ? {
+                    street: document.getElementById('shipping-street').value,
+                    city: document.getElementById('shipping-city').value,
+                    zip: document.getElementById('shipping-zip').value
+                } : null,
+                shippingMethod,
+                zasilkovnaId: document.getElementById('zasilkovna-id').value,
+                alzaboxId: document.getElementById('alzabox-id').value,
+                paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+                items: checkoutCart,
+                shippingCost
+            };
+
+            try {
+                const res = await fetch('/.netlify/functions/comgate-create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                const data = await res.json();
+                if (res.ok && data.url) {
+                    // Redirect to payment gateway (or next step)
+                    window.location.href = data.url;
+                } else {
+                    feedback.textContent = data.error || 'Nastala chyba při vytváření platby.';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Dokončit objednávku a zaplatit';
+                }
+            } catch (err) {
+                feedback.textContent = 'Chyba serveru. Zkuste to prosím znovu.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Dokončit objednávku a zaplatit';
+            }
+        });
+
+        // Replace with your real Packeta API key
+        const packetaApiKey = "a90886c33e8b0a9c"; 
+
+        // Init
+        renderCheckoutCart();
+    </script>
+</body>
+</html>

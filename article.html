@@ -3,26 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail filtru — Fotofiltry.cz</title>
-    <meta name="description" content="Detail prémiového optického filtru od Fotofiltry.cz.">
+    <title>Studio Journal — Fotofiltry.cz</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&display=swap" rel="stylesheet">
     
-    <!-- Link to custom styles -->
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="custom-styles.css">
-    <!-- Packeta Widget v6 -->
-    <script src="https://widget.packeta.com/v6/www/js/library.js"></script>
 </head>
 <body>
-
-    <!-- ── BACKGROUND refract grid ── -->
     <div class="bg-glow" id="bg-glow" aria-hidden="true"></div>
 
-    <!-- ── HEADER ── -->
     <header class="main-header" id="header-section">
         <div class="header-container">
             <a href="index.html" class="brand-logo" id="logo-home">
@@ -47,80 +40,35 @@
         </div>
     </header>
 
-    <!-- ── PRODUCT DETAIL SECTION ── -->
-    <section class="product-detail-section" style="padding: 120px 0 60px 0; min-height: 80vh;">
+    <main class="custom-flowing-stream-block" style="padding-top: 120px; min-height: 80vh;">
         <div class="section-container">
-            <a href="index.html#kolekce" class="back-link-btn">
-                <span style="font-size: 18px;">&larr;</span> Zpět na kolekci
+            <a href="index.html#journal" class="back-link-btn">
+                <span style="font-size: 18px;">&larr;</span> Zpět na Journal
             </a>
-            <div id="product-detail-content" style="display: none; width: 100%;">
-                <div class="product-detail-grid">
-                    <!-- Levý sloupec: Galerie + Popis -->
-                    <div class="product-left-col">
-                        <div class="product-gallery">
-                        <div class="main-image-wrap">
-                            <img id="detail-main-img" src="" alt="Produkt">
-                        </div>
-                        <div id="detail-thumbnails" class="gallery-thumbnails">
-                            <!-- Dynamicky naplněné miniatury -->
-                        </div>
-                    </div>
-                    
-                    <div id="detail-description" class="product-full-description" style="margin-top: 60px;">
-                        <!-- Dynamicky naplněný popis -->
-                    </div>
-                </div>
-                    
-                <!-- Informace vpravo -->
-                    <div class="product-info-wrap">
-                        <h1 id="detail-title" class="product-title">Název produktu</h1>
-                        <div id="detail-price" class="product-price">990 Kč</div>
-                        
-                        <div class="product-variants">
-                            <label for="detail-variant-select">Vyberte průměr závitu</label>
-                            <select id="detail-variant-select" class="variant-select">
-                                <!-- Dynamicky naplněné varianty -->
-                            </select>
-                        </div>
-                        
-                        <div class="product-actions">
-                            <input type="number" id="detail-quantity" class="quantity-input" value="1" min="1" max="99">
-                            <button id="detail-add-to-cart" class="btn-add-to-cart add-to-cart-btn" data-id="prism-01" data-name="Prism Series - 77mm" data-price="2490" data-img="images/kaleidoscope_0.png">Do košíku</button>
-                        </div>
-                        
-                        <!-- TABULKA PARAMETRŮ -->
-                        <div class="product-params-container">
-                            <h3 class="params-title">Technické parametry</h3>
-                            <table class="params-table">
-                                <tr>
-                                    <td class="param-label">Materiál</td>
-                                    <td class="param-value">Prémiové optické sklo K9</td>
-                                </tr>
-                                <tr>
-                                    <td class="param-label">Rámeček</td>
-                                    <td class="param-value">Odlehčený letecký hliník</td>
-                                </tr>
-                                <tr>
-                                    <td class="param-label">Povrchová úprava</td>
-                                    <td class="param-value">Nano-coating (18 vrstev)</td>
-                                </tr>
-                                <tr>
-                                    <td class="param-label">Vlastnosti</td>
-                                    <td class="param-value">Odolné proti poškrábání, vodoodpudivé</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        </div>
+        <div id="article-content" style="display: none; max-width: 800px; margin: 0 auto;">
+            <div class="journal-meta" id="article-meta" style="margin-bottom: 20px; text-align: center;">Kategorie | Datum</div>
+            <h1 class="stream-title" id="article-title" style="text-align: center; border-bottom: none;">Název článku</h1>
+            
+            <div style="width: 100%; border-radius: 20px; overflow: hidden; margin-bottom: 40px; border: 1px solid var(--color-border);">
+                <img id="article-img" src="" alt="Obrázek článku" style="width: 100%; height: auto; display: block;">
             </div>
-            <div id="product-not-found" style="display: none; text-align: center; padding: 100px 0;">
-                <h2 style="font-size: 2rem; color: var(--color-text-main);">Produkt nebyl nalezen.</h2>
-                <a href="index.html" class="cta-button primary-cta" style="margin-top: 20px; display: inline-flex;">Zpět na hlavní stránku</a>
+            
+            <div class="stream-content-area" id="article-body">
+                <!-- Text článku -->
+            </div>
+            
+            <div style="margin-top: 60px; text-align: center; border-top: 1px solid var(--color-border); padding-top: 30px;">
+                <a href="index.html#journal" class="cta-button secondary-cta" style="display: inline-block;">Zpět na Journal</a>
             </div>
         </div>
-    </section>
+        
+        <div id="article-not-found" style="display: none; text-align: center; padding: 100px 0;">
+            <h2 style="font-size: 2rem; color: var(--color-text-main);">Článek nebyl nalezen.</h2>
+            <a href="index.html#journal" class="cta-button primary-cta" style="margin-top: 20px; display: inline-flex;">Zpět na Journal</a>
+        </div>
+    </main>
 
-    <!-- ── FOOTER ── -->
     <!-- ── FOOTER ── -->
     <footer class="main-footer" role="contentinfo">
         <div class="footer-container">
@@ -178,7 +126,44 @@
         </div>
     </div>
 
-    <!-- Link to custom script -->
     <script src="scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const articleId = params.get('id');
+
+            if (articleId) {
+                fetch('blog.json')
+                    .then(response => response.json())
+                    .then(blogs => {
+                        const article = blogs.find(b => b.id === articleId);
+                        if (article) {
+                            document.title = `${article.title} — Fotofiltry.cz`;
+                            document.getElementById('article-meta').innerHTML = `${article.category} | ${article.date}`;
+                            document.getElementById('article-title').innerHTML = article.title;
+                            document.getElementById('article-img').src = article.image;
+                            document.getElementById('article-body').innerHTML = article.content;
+                            document.getElementById('article-content').style.display = 'block';
+                            
+                            // Aplikovat oranžovou barvu na poslední slovo nadpisu (jak požadováno)
+                            const titleEl = document.getElementById('article-title');
+                            if (titleEl && titleEl.children.length === 0 && titleEl.textContent.trim().includes(' ')) {
+                                const words = titleEl.textContent.trim().split(' ');
+                                const lastWord = words.pop();
+                                titleEl.innerHTML = words.join(' ') + ' <span style="color: var(--color-accent);">' + lastWord + '</span>';
+                            }
+                        } else {
+                            document.getElementById('article-not-found').style.display = 'block';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching blogs:', err);
+                        document.getElementById('article-not-found').style.display = 'block';
+                    });
+            } else {
+                document.getElementById('article-not-found').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>

@@ -11,8 +11,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&display=swap" rel="stylesheet">
     
-    <!-- Link to custom styles -->
+    <!-- Vlastní styly -->
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="custom-styles.css">
+    
     <!-- Packeta Widget v6 -->
     <script src="https://widget.packeta.com/v6/www/js/library.js"></script>
 </head>
@@ -33,6 +35,7 @@
                 <a href="#kolekce" class="nav-link">Kolekce</a>
                 <a href="#o-nas" class="nav-link">O nás</a>
                 <a href="#journal" class="nav-link">Journal</a>
+                <a href="#hodnoceni" class="nav-link">Hodnocení</a>
                 <a href="#kontakt" class="nav-link">Kontakt</a>
             </nav>
 
@@ -49,8 +52,8 @@
     <section class="hero-section" id="hero">
         <div class="hero-container">
             <div class="hero-content">
-                <h1 class="hero-title">Vidět svět<br><span class="accent-glow">jinak.</span></h1>
-                <p class="hero-subtitle">Prémiové optické filtry navržené pro tvůrce, kteří odmítají průměrnost. Dodejte svým snímkům filmovou atmosféru přímo na snímač.</p>
+                <h1 class="hero-title" id="content-heroTitle">Vidět svět<br><span class="accent-glow">jinak.</span></h1>
+                <p class="hero-subtitle" id="content-heroSubtitle">Prémiové optické filtry navržené pro tvůrce, kteří odmítají průměrnost. Dodejte svým snímkům filmovou atmosféru přímo na snímač.</p>
                 <div class="hero-buttons">
                     <a href="#kolekce" class="cta-button primary-cta" id="cta-explore">Prohlédnout kolekce</a>
                     <a href="#o-nas" class="cta-button secondary-cta" id="cta-about">Náš příběh</a>
@@ -70,8 +73,8 @@
     <section class="products-section" id="kolekce">
         <div class="section-container">
             <div class="section-header">
-                <h2 class="section-title">Kreativní skla</h2>
-                <p class="section-subtitle">Vyberte si svůj look. Každý filtr ručně brousíme z nejčistšího optického skla.</p>
+                <h2 class="section-title" id="content-productsTitle">Kreativní skla</h2>
+                <p class="section-subtitle" id="content-productsSubtitle">Vyberte si svůj look. Každý filtr ručně brousíme z nejčistšího optického skla.</p>
             </div>
 
             <div class="products-grid" id="products-listing">
@@ -126,6 +129,7 @@
         </div>
     </section>
 
+    
     <!-- ── ABOUT SECTION (O NÁS) ── -->
     <section class="about-section" id="o-nas">
         <div class="section-container split-layout">
@@ -136,9 +140,9 @@
             </div>
             
             <div class="about-content">
-                <span class="sub-label">NÁŠ PŘÍBĚH</span>
-                <h2 class="about-title">Hledání perfektní nedokonalosti</h2>
-                <div class="about-text">
+                <span class="sub-label" id="content-aboutLabel">NÁŠ PŘÍBĚH</span>
+                <h2 class="about-title" id="content-aboutTitle">Hledání perfektní nedokonalosti</h2>
+                <div class="about-text" id="content-aboutText">
                     <p>Fotofiltry.cz vznikly jako tvůrčí playground — prostor, kde můžete ohýbat světlo a tvořit atmosféru přímo v objektivu. Ne až u počítače v postprodukci, ale v samotném okamžiku stisknutí spouště.</p>
                     <p>Naším cílem není sterilní technická dokonalost, ale emoce. Filtry rozbíjejí digitální nudu moderních snímačů, zjemňují kontrast a přinášejí analogovou organickou texturu tam, kde chybí.</p>
                     <p><strong>Světlo je všechno.</strong> A když ho začnete vnímat přes naše optická skla, změní se i to, co fotíte.</p>
@@ -151,36 +155,40 @@
     <section class="journal-section" id="journal">
         <div class="section-container">
             <div class="section-header">
-                <h2 class="section-title">Studio Journal</h2>
-                <p class="section-subtitle">Inspirace, tutoriály a fotoreportáže od tvůrců z naší komunity.</p>
+                <h2 class="section-title" id="content-journalTitle">Studio Journal</h2>
+                <p class="section-subtitle" id="content-journalSubtitle">Inspirace, tutoriály a fotoreportáže od tvůrců z naší komunity.</p>
             </div>
 
-            <div class="journal-grid">
-                <!-- Article 1 -->
-                <article class="journal-card" id="article-1">
-                    <div class="journal-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=600&q=80" alt="Focení v protisvětle" class="journal-img">
-                    </div>
-                    <div class="journal-content">
-                        <span class="journal-meta">TUTORIÁL • 5 MIN ČTENÍ</span>
-                        <h3 class="journal-card-title">Jak ovládnout lom světla s Prism filtrem</h3>
-                        <p class="journal-excerpt">Praktické tipy pro nastavení clony a úhlu záběru, kterými docílíte nejkrásnějších duhových odlesků bez přeexponování scény.</p>
-                        <a href="#" class="read-more-link">Číst dále →</a>
-                    </div>
-                </article>
+            <div class="journal-grid" id="journal-grid">
+                <!-- Články se načítají dynamicky z blog.json -->
+            </div>
+        </div>
+    </section>
 
-                <!-- Article 2 -->
-                <article class="journal-card" id="article-2">
-                    <div class="journal-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80" alt="Filmový look" class="journal-img">
-                    </div>
-                    <div class="journal-content">
-                        <span class="journal-meta">INSPIRACE • 8 MIN ČTENÍ</span>
-                        <h3 class="journal-card-title">Proč filmaři milují difuzní filtry (Fog look)</h3>
-                        <p class="journal-excerpt">Pohled do zákulisí nezávislých filmů. Jak Fog filtr pomáhá simulovat anamorfní optiku na běžných digitálních objektivech.</p>
-                        <a href="#" class="read-more-link">Číst dále →</a>
-                    </div>
-                </article>
+    <!-- ── REVIEWS (HODNOCENÍ) ── -->
+    <section class="reviews-section" id="hodnoceni">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Hodn<span style="color: var(--color-text-main);">ocení</span></h2>
+                <p class="section-subtitle">Co o našich filtrech říkají tvůrci</p>
+            </div>
+            
+            <div class="reviews-grid">
+                <div class="review-card glass-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="review-text">"Konečně filtry, které neničí ostrost objektivu. Halo používám na každý videoklip, dodává neuvěřitelně snovou atmosféru."</p>
+                    <p class="review-author">— Jakub M., kameraman</p>
+                </div>
+                <div class="review-card glass-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="review-text">"Fog filter je must-have pro noční street foto. Ty halace kolem pouličních lamp vypadají jako z filmu. Skvělá kvalita skla."</p>
+                    <p class="review-author">— Petra S., fotografka</p>
+                </div>
+                <div class="review-card glass-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="review-text">"Rozdíl oproti levným filtrům z Číny je obrovský. Nehážou divné odlesky a obraz má krásný organický look."</p>
+                    <p class="review-author">— Tomáš L., režisér</p>
+                </div>
             </div>
         </div>
     </section>
@@ -189,29 +197,40 @@
     <section class="contact-section" id="kontakt">
         <div class="section-container split-layout">
             <div class="contact-info-block">
-                <h2 class="contact-title">Máte dotaz? Vytvořme něco výjimečného.</h2>
-                <p class="contact-desc">Zajímá vás individuální rozměr filtru, nebo chcete navázat spolupráci? Napište nám nebo použijte rychlou objednávku.</p>
+                <h2 class="contact-title" id="content-contactTitle">Kontakt</h2>
+                <p class="contact-desc" id="content-contactDesc">📝 Kontaktní formulář: Vyplňte formulář níže a ozvu se vám co nejdříve.</p>
                 
                 <div class="contact-details">
                     <div class="info-item">
                         <span class="info-icon">📍</span>
                         <div>
-                            <strong>Studio & Showroom</strong>
-                            <p>Praha, Česká republika</p>
+                            <strong>Fakturační údaje</strong>
+                            <p style="margin: 0; line-height: 1.5; color: var(--color-text-muted);">
+                                Eva Belšánová Langrová<br>
+                                IČ: 05490804<br>
+                                Nejsem plátce DPH
+                            </p>
                         </div>
                     </div>
                     <div class="info-item">
                         <span class="info-icon">✉️</span>
                         <div>
-                            <strong>Email</strong>
-                            <p>info@fotofiltry.cz</p>
+                            <strong>E-mail</strong>
+                            <p id="content-contactEmail">info@evalangrova.cz</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📱</span>
+                        <div>
+                            <strong>WhatsApp / Telefon</strong>
+                            <p id="content-contactPhone">+420 604 241 924</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="contact-form-block">
-                <form id="order-form" class="premium-form">
+                <form id="contact-form" class="premium-form" style="padding: 25px; border-radius: 12px;">
                     <div class="form-group">
                         <label for="form-name">Vaše jméno</label>
                         <input type="text" id="form-name" required placeholder="Jan Novák">
@@ -221,19 +240,8 @@
                         <input type="email" id="form-email" required placeholder="jan@example.com">
                     </div>
                     <div class="form-group">
-                        <label for="form-phone">Telefon</label>
-                        <input type="tel" id="form-phone" required placeholder="+420 777 777 777">
-                    </div>
-                    <div class="form-group">
-                        <label>Doprava (Zásilkovna)</label>
-                        <button type="button" id="zasilkovna-trigger" class="submit-btn" style="background: var(--color-bg); color: var(--color-text-main); border: 1px solid var(--color-border); padding: 12px; margin-bottom: 8px; font-size: 13px;">Vybrat pobočku Zásilkovny</button>
-                        <div id="zasilkovna-info" style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 8px;">Žádná pobočka nevybrána</div>
-                        <input type="hidden" id="form-zasilkovna" name="zasilkovnaName">
-                        <input type="hidden" id="form-zasilkovna-id" name="zasilkovnaId">
-                    </div>
-                    <div class="form-group">
-                        <label for="form-message">Zpráva nebo rychlá objednávka</label>
-                        <textarea id="form-message" rows="4" required placeholder="Mám zájem o Fog filtr v průměru 77mm..."></textarea>
+                        <label for="form-message">Zpráva</label>
+                        <textarea id="form-message" rows="4" required placeholder="Dobrý den, měl/a bych zájem o..."></textarea>
                     </div>
                     <button type="submit" class="submit-btn" id="form-submit">Odeslat poptávku</button>
                     <div id="form-feedback" class="form-feedback"></div>
@@ -242,37 +250,45 @@
         </div>
     </section>
 
+    
+    
+
+    
+    
+
     <!-- ── FOOTER ── -->
     <footer class="main-footer" role="contentinfo">
         <div class="footer-container">
             <div class="footer-brand">
-                <div class="f-logo-text">foto<b>filtr</b>y.cz</div>
+                <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="max-height: 40px; width: auto; display: block; margin-bottom: 15px;">
+                <div class="f-logo-text" style="display: none;">foto<b>filtr</b>y.cz</div>
                 <p class="f-brand-tagline">Nekompromisní optická kvalita a jedinečný look pro moderní tvůrce.</p>
             </div>
             
             <div class="footer-links-grid">
                 <div class="footer-col">
                     <h4>Kolekce</h4>
-                    <a href="#kolekce">Prism Series</a>
-                    <a href="#kolekce">Fog Series</a>
-                    <a href="#kolekce">Halo Series</a>
+                    <a href="index.html#kolekce">Prism Series</a>
+                    <a href="index.html#kolekce">Fog Series</a>
+                    <a href="index.html#kolekce">Halo Series</a>
                 </div>
                 <div class="footer-col">
                     <h4>Informace</h4>
-                    <a href="#">Doprava a platba</a>
-                    <a href="#">Obchodní podmínky</a>
-                    <a href="#">Ochrana osobních údajů</a>
+                    <a href="kontakt.html">Napište nám</a>
+                    <a href="reklamace.html">Reklamace a vrácení</a>
+                    <a href="obchodni-podminky.html">Obchodní podmínky</a>
+                    <a href="ochrana-soukromi.html">Ochrana soukromí</a>
                 </div>
                 <div class="footer-col">
-                    <h4>Zákaznický servis</h4>
-                    <a href="#kontakt">Napište nám</a>
-                    <a href="#">FAQ</a>
-                    <a href="#">Reklamace</a>
+                    <h4>Sledujte nás</h4>
+                    <a href="https://instagram.com/fotofiltrycz" target="_blank" aria-label="Instagram">Instagram</a>
+                    <a href="https://vimeo.com/fotofiltrycz" target="_blank" aria-label="Vimeo">Vimeo</a>
+                    <a href="index.html#journal">Studio Journal</a>
                 </div>
             </div>
         </div>
         <div class="footer-copyright">
-            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA.</p>
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
         </div>
     </footer>
 
@@ -300,6 +316,9 @@
             </div>
         </div>
     </div>
+
+    <!-- ── SCROLL TO TOP BTN ── -->
+    <button id="scroll-top-btn" class="scroll-top-btn" aria-label="Nahoru">↑</button>
 
     <!-- Link to custom script -->
     <script src="scripts.js"></script>

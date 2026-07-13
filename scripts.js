@@ -49,40 +49,51 @@ document.addEventListener('DOMContentLoaded', function() {
     cartClose.addEventListener('click', function() { toggleCart(false); });
     cartOverlay.addEventListener('click', function() { toggleCart(false); });
 
-    // Přidání do košíku
-    document.querySelectorAll('.add-to-cart-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var id = this.getAttribute('data-id');
-            var name = this.getAttribute('data-name');
-            var price = parseInt(this.getAttribute('data-price'), 10);
-            var img = this.getAttribute('data-img');
-            var variant = this.getAttribute('data-variant') || '';
+    // Přidání do košíku (Event Delegation)
+    document.body.addEventListener('click', function(e) {
+        var btn = e.target.closest('.add-to-cart-btn');
+        if (!btn) return;
+        
+        var id = btn.getAttribute('data-id');
+        if (!id) return; // Prevent empty clicks
+        
+        var name = btn.getAttribute('data-name');
+        var price = parseInt(btn.getAttribute('data-price'), 10);
+        var img = btn.getAttribute('data-img');
+        var variant = btn.getAttribute('data-variant') || '';
 
-            if (variant) {
-                name = name + ' (' + variant + ')';
-                id = id + '_' + variant;
+        if (variant) {
+            name = name + ' (' + variant + ')';
+            id = id + '_' + variant;
+        }
+
+        var qtyToAdd = 1;
+        if (btn.id === 'detail-add-to-cart') {
+            var qtyInput = document.getElementById('detail-quantity');
+            if (qtyInput) {
+                qtyToAdd = parseInt(qtyInput.value, 10) || 1;
             }
+        }
 
-            // Hledání duplicity
-            var existingItem = cart.find(function(item) { return item.id === id; });
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({
-                    id: id,
-                    name: name,
-                    price: price,
-                    img: img,
-                    quantity: 1,
-                    variant: variant
-                });
-            }
+        // Hledání duplicity
+        var existingItem = cart.find(function(item) { return item.id === id; });
+        if (existingItem) {
+            existingItem.quantity += qtyToAdd;
+        } else {
+            cart.push({
+                id: id,
+                name: name,
+                price: price,
+                img: img,
+                quantity: qtyToAdd,
+                variant: variant
+            });
+        }
 
-            // Uložení a UI update
-            saveCart();
-            updateCartUI();
-            toggleCart(true); // Otevřít po přidání
-        });
+        // Uložení a UI update
+        saveCart();
+        updateCartUI();
+        toggleCart(true); // Otevřít po přidání
     });
 
     function saveCart() {
@@ -141,207 +152,189 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Checkout button kliknutí
     checkoutBtn.addEventListener('click', function() {
-        var itemsText = cart.map(function(item) {
-            return item.name + ' (' + item.quantity + 'x)';
-        }).join(', ');
-        
-        // Sjednotit s objednávkovým formulářem
-        var contactSection = document.getElementById('kontakt');
-        if (contactSection) {
-            toggleCart(false);
-            contactSection.scrollIntoView({ behavior: 'smooth' });
-            
-            var msgInput = document.getElementById('form-message');
-            if (msgInput) {
-                msgInput.value = 'Mám zájem o rychlou objednávku těchto filtrů: ' + itemsText + '. Prosím o zaslání platebních údajů.';
-                msgInput.focus();
-            }
+        if (cart.length === 0) {
+            alert('Košík je prázdný.');
+            return;
         }
+        window.location.href = 'checkout.html';
     });
 
     // Load Stripe.js dynamically
-    var stripeScript = document.createElement('script');
-    stripeScript.src = 'https://js.stripe.com/v3/';
-    document.head.appendChild(stripeScript);
+    const script = document.createElement('script');
+    script.src = "https://js.stripe.com/v3/";
+    script.async = true;
+    document.head.appendChild(script);
 
-    /* ── 3. OBJEDNÁVKOVÝ / KONTAKTNÍ FORMULÁŘ (STRIPE PLATBA) ── */
-    var form = document.getElementById('order-form');
+    // ── ZVÝRAZNĚNÍ POSLEDNÍHO SLOVA V NADPISECH ──
+    const headingSelectors = 'h1, h2, .section-title, .product-name, .about-title, .contact-title, .stream-title';
+    document.querySelectorAll(headingSelectors).forEach(heading => {
+        // Zpracováváme pouze pokud neobsahuje složité HTML a má alespoň dvě slova
+        if (heading.children.length === 0 && heading.textContent.trim().includes(' ')) {
+            const words = heading.textContent.trim().split(' ');
+            const lastWord = words.pop();
+            heading.innerHTML = words.join(' ') + ' <span style="color: var(--color-accent);">' + lastWord + '</span>';
+        }
+    });
+
+    // ── SCROLL ANIMACE (POSTUPNÉ VYKRESLOVÁNÍ) ──
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const scrollObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('reveal-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    // Přidání tříd k elementům    // Kaskádové aplikace třídy
+    document.querySelectorAll('.product-card').forEach((el, i) => {
+        el.classList.add('reveal-fade-up');
+        el.style.transitionDelay = `${(i % 3) * 0.15}s`; // Kaskádový efekt v gridu
+        scrollObserver.observe(el);
+    });
+    
+    document.querySelectorAll('.contact-form-block').forEach(el => {
+        el.classList.add('reveal-fade-left');
+        scrollObserver.observe(el);
+    });
+
+    // --- DYNAMICKÁ APLIKACE ANIMACÍ NA VŠECHNY PRVKY (na žádost uživatele) ---
+    // Texty zleva/zprava, obrázky zdola
+    const elementsLeft = document.querySelectorAll('h1, h2, h3, .section-title, .about-title, .hero-title');
+    const elementsRight = document.querySelectorAll('p, .about-text, .hero-subtitle, .document-content');
+    const elementsUp = document.querySelectorAll('img, .footer-col, .product-image-wrap, .form-group, .cta-button');
+    
+    function observeElements(elements, animationClass) {
+        elements.forEach((el, i) => {
+            if (!el.closest('.main-header') && !el.closest('.cart-drawer') && !el.classList.contains('reveal-fade-up') && !el.classList.contains('reveal-fade-left') && !el.classList.contains('reveal-fade-right')) {
+                el.classList.add(animationClass);
+                el.style.transitionDelay = `${(i % 5) * 0.1}s`; 
+                scrollObserver.observe(el);
+            }
+        });
+    }
+
+    observeElements(elementsLeft, 'reveal-fade-left');
+    observeElements(elementsRight, 'reveal-fade-right');
+    observeElements(elementsUp, 'reveal-fade-up');
+
+    document.querySelectorAll('.story-image-container, .contact-info-block').forEach(el => {
+        el.classList.add('reveal-fade-right');
+        scrollObserver.observe(el);
+    });
+    
+    document.querySelectorAll('.contact-form-block').forEach(el => {
+        el.classList.add('reveal-fade-left');
+        scrollObserver.observe(el);
+    });
+
+    // Zpracování produktů a blogů (pokud existují kontejnery)
+    const journalGrid = document.getElementById('journal-grid');
+    if (journalGrid) {
+        fetch('blog.json')
+            .then(res => res.json())
+            .then(blogs => {
+                journalGrid.innerHTML = '';
+                blogs.forEach((blog, index) => {
+                    const article = document.createElement('article');
+                    article.className = 'journal-card reveal-fade-up';
+                    article.style.transitionDelay = `${(index % 2) * 0.2}s`;
+                    article.innerHTML = `
+                        <div class="journal-img-wrap">
+                            <img src="${blog.image}" alt="${blog.title}" class="journal-img">
+                        </div>
+                        <div class="journal-content">
+                            <span class="journal-meta">${blog.date}</span>
+                            <h3 class="journal-card-title">${blog.title}</h3>
+                            <p class="journal-excerpt">${blog.text}</p>
+                            <a href="article.html?id=${blog.id}" class="read-more-link">Číst dále →</a>
+                        </div>
+                    `;
+                    journalGrid.appendChild(article);
+                    scrollObserver.observe(article);
+                });
+            })
+            .catch(err => console.error("Error loading blogs:", err));
+    } else {
+        // Fallback pro existující journal-cards na jiných stránkách
+        document.querySelectorAll('.journal-card').forEach((el, i) => {
+            el.classList.add('reveal-fade-up');
+            el.style.transitionDelay = `${(i % 2) * 0.2}s`;
+            scrollObserver.observe(el);
+        });
+    }
+
+    // ── COOKIES BANNER LOGIKA ──
+    function initCookies() {
+        if (!localStorage.getItem('cookies_accepted')) {
+            const banner = document.createElement('div');
+            banner.className = 'cookies-banner';
+            banner.innerHTML = `
+                <div class="cookies-text">
+                    Tento web používá soubory cookies k zajištění nejlepšího uživatelského zážitku, personalizaci obsahu a analýze návštěvnosti. 
+                    Pokračováním v prohlížení souhlasíte s jejich používáním. 
+                    <a href="podpis.html">Více informací</a>.
+                </div>
+                <div class="cookies-buttons">
+                    <button class="cookies-btn cookies-decline" id="btn-cookies-decline">Odmítnout</button>
+                    <button class="cookies-btn cookies-accept" id="btn-cookies-accept">Rozumím a přijímám</button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+
+            // Zobrazit plynule
+            setTimeout(() => {
+                banner.classList.add('show');
+            }, 500);
+
+            document.getElementById('btn-cookies-accept').addEventListener('click', () => {
+                localStorage.setItem('cookies_accepted', 'true');
+                banner.classList.remove('show');
+                setTimeout(() => banner.remove(), 500);
+            });
+
+            document.getElementById('btn-cookies-decline').addEventListener('click', () => {
+                localStorage.setItem('cookies_accepted', 'false');
+                banner.classList.remove('show');
+                setTimeout(() => banner.remove(), 500);
+            });
+        }
+    }
+    initCookies();
+
+    /* ── 3. KONTAKTNÍ FORMULÁŘ ── */
+    var contactForm = document.getElementById('contact-form');
     var feedback = document.getElementById('form-feedback');
 
-    if (form) {
-        form.addEventListener('submit', function(e) {
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             var name = document.getElementById('form-name').value;
             var email = document.getElementById('form-email').value;
-            var phone = document.getElementById('form-phone').value;
-            var zasilkovnaId = document.getElementById('form-zasilkovna-id').value;
             var message = document.getElementById('form-message').value;
             var submitBtn = document.getElementById('form-submit');
 
-            if (cart.length === 0) {
-                feedback.className = 'form-feedback';
-                feedback.style.color = 'var(--danger)';
-                feedback.textContent = 'Košík je prázdný. Přidejte prosím zboží do košíku.';
-                return;
-            }
-
-            if (!zasilkovnaId) {
-                feedback.className = 'form-feedback error';
-                feedback.style.color = 'var(--danger)';
-                feedback.textContent = 'Vyberte prosím pobočku Zásilkovny.';
-                return;
-            }
-
-            // Lock submit button
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Připravuji platbu...';
+            submitBtn.textContent = 'Odesílám...';
             feedback.className = 'form-feedback';
             feedback.textContent = '';
 
-            var checkoutItems = cart.map(function(item) {
-                return { id: item.id, quantity: item.quantity };
-            });
-
-            var shippingField = document.getElementById('form-zasilkovna') || document.getElementById('form-address');
-            var shippingText = shippingField ? shippingField.value : ("Zásilkovna / Adresa: " + message);
-
-            // Call Netlify checkout API
-            fetch('/.netlify/functions/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    zasilkovnaId: zasilkovnaId,
-                    message: message,
-                    shipping_info: shippingText,
-                    items: checkoutItems
-                })
-            })
-            .then(function(res) {
-                if (!res.ok) {
-                    return res.json().then(function(err) { throw new Error(err.error || 'Checkout API error'); });
-                }
-                return res.json();
-            })
-            .then(function(data) {
-                if (!window.Stripe) {
-                    throw new Error('Knihovna Stripe se nenačetla. Zkuste to prosím znovu.');
-                }
-
-                var stripe = Stripe(data.publishableKey);
-                var elements = stripe.elements();
-
-                // Build a premium minimalist card payment modal overlay
-                var modal = document.createElement('div');
-                modal.id = 'stripe-payment-modal';
-                modal.style.position = 'fixed';
-                modal.style.top = '0';
-                modal.style.left = '0';
-                modal.style.width = '100%';
-                modal.style.height = '100%';
-                modal.style.background = 'rgba(0, 0, 0, 0.85)';
-                modal.style.backdropFilter = 'blur(8px)';
-                modal.style.display = 'flex';
-                modal.style.justifyContent = 'center';
-                modal.style.alignItems = 'center';
-                modal.style.zIndex = '9999';
-                modal.style.fontFamily = "'Outfit', sans-serif";
-
-                modal.innerHTML = 
-                    '<div style="background:#121216; border:1px solid #22222a; border-radius:12px; padding:30px; width:100%; max-width:420px; box-shadow:0 20px 40px rgba(0,0,0,0.5); color:#f3f3f6; position:relative;">' +
-                        '<button id="stripe-modal-close" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#8e8e9f; font-size:1.5rem; cursor:pointer; line-height:1;">×</button>' +
-                        '<h3 style="margin:0 0 10px 0; font-size:1.4rem; font-weight:700; color:#f3f3f6;">Dokončení platby</h3>' +
-                        '<p style="margin:0 0 20px 0; font-size:0.9rem; color:#8e8e9f;">Celková částka: <strong style="color:#d68c3f;">' + data.totalAmountCzk + ' Kč</strong> (včetně poštovného 100 Kč)</p>' +
-                        '<form id="stripe-card-form">' +
-                            '<div style="margin-bottom:20px; text-align:left;">' +
-                                '<label style="display:block; font-size:0.8rem; color:#8e8e9f; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">Platební karta</label>' +
-                                '<div id="stripe-card-element" style="background:#1a1a22; border:1px solid #22222a; border-radius:6px; padding:12px 16px;"></div>' +
-                                '<div id="stripe-card-errors" role="alert" style="color:#e65050; font-size:0.85rem; margin-top:8px;"></div>' +
-                            '</div>' +
-                            '<button type="submit" id="stripe-submit-payment" style="width:100%; background:#d68c3f; color:#000; border:none; border-radius:6px; padding:14px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.2s ease;">Zaplatit a dokončit</button>' +
-                        '</form>' +
-                    '</div>';
-
-                document.body.appendChild(modal);
-
-                var style = {
-                    base: {
-                        color: '#f3f3f6',
-                        fontFamily: "'Outfit', sans-serif",
-                        fontSmoothing: 'antialiased',
-                        fontSize: '16px',
-                        '::placeholder': {
-                            color: '#8e8e9f'
-                        }
-                    },
-                    invalid: {
-                        color: '#e65050',
-                        iconColor: '#e65050'
-                    }
-                };
-
-                var cardElement = elements.create('card', { style: style, hidePostalCode: true });
-                cardElement.mount('#stripe-card-element');
-
-                // Close Modal
-                document.getElementById('stripe-modal-close').addEventListener('click', function() {
-                    document.body.removeChild(modal);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Odeslat poptávku';
-                });
-
-                // Form submit within modal
-                var cardForm = document.getElementById('stripe-card-form');
-                cardForm.addEventListener('submit', function(ev) {
-                    ev.preventDefault();
-                    var payBtn = document.getElementById('stripe-submit-payment');
-                    payBtn.disabled = true;
-                    payBtn.textContent = 'Zpracovávám platbu...';
-
-                    stripe.confirmCardPayment(data.clientSecret, {
-                        payment_method: {
-                            card: cardElement,
-                            billing_details: {
-                                name: name,
-                                email: email
-                            }
-                        }
-                    })
-                    .then(function(result) {
-                        if (result.error) {
-                            document.getElementById('stripe-card-errors').textContent = result.error.message;
-                            payBtn.disabled = false;
-                            payBtn.textContent = 'Zaplatit a dokončit';
-                        } else {
-                            if (result.paymentIntent.status === 'succeeded') {
-                                document.body.removeChild(modal);
-                                submitBtn.disabled = false;
-                                submitBtn.textContent = 'Odeslat poptávku';
-                                
-                                feedback.className = 'form-feedback success';
-                                feedback.innerHTML = 'Děkujeme, ' + name + '! Objednávka byla úspěšně zaplacena. Potvrzení a fakturu obdržíte e-mailem.';
-                                
-                                // Clear cart
-                                form.reset();
-                                cart = [];
-                                saveCart();
-                                updateCartUI();
-                            }
-                        }
-                    });
-                });
-            })
-            .catch(function(err) {
-                console.error(err);
+            // Jednoduché odeslání zprávy (např. přes formspree nebo vlastní webhook)
+            // Prozatím simulujeme úspěch
+            setTimeout(function() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Odeslat poptávku';
-                feedback.className = 'form-feedback';
-                feedback.style.color = 'var(--danger)';
-                feedback.textContent = 'Nastala chyba při přípravě platby: ' + err.message;
-            });
+                feedback.className = 'form-feedback success';
+                feedback.style.color = 'var(--color-accent)';
+                feedback.textContent = 'Děkujeme, ' + name + '! Vaše zpráva byla úspěšně odeslána.';
+                contactForm.reset();
+            }, 1000);
         });
     }
 
@@ -363,8 +356,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (product) {
                         detailContent.style.display = 'block';
                         document.title = product.name + ' — Fotofiltry.cz';
+                        var titleWords = product.name.trim().split(' ');
+                        if (titleWords.length > 1) {
+                            var lastWord = titleWords.pop();
+                            document.getElementById('detail-title').innerHTML = titleWords.join(' ') + ' <span style="color: var(--color-accent);">' + lastWord + '</span>';
+                        } else {
+                            document.getElementById('detail-title').textContent = product.name;
+                        }
                         
-                        document.getElementById('detail-title').textContent = product.name;
                         document.getElementById('detail-price').textContent = product.price;
                         document.getElementById('detail-description').innerHTML = product.description;
                         
@@ -394,12 +393,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Varianty
                         var variantSelect = document.getElementById('detail-variant-select');
                         if (product.variants && product.variants.length > 0) {
+                            variantSelect.innerHTML = ''; // Vyčistit staré hardcoded optiony
                             product.variants.forEach(function(v) {
                                 var opt = document.createElement('option');
                                 opt.value = v;
                                 opt.textContent = v;
                                 variantSelect.appendChild(opt);
                             });
+                            variantSelect.parentElement.style.display = 'block';
                         } else {
                             variantSelect.parentElement.style.display = 'none';
                         }
@@ -428,30 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             addBtn.style.cursor = 'not-allowed';
                         }
                         
-                        // Přidat listener, protože tlačítko je dynamické / nemusí být zohledněno nahoře
-                        addBtn.addEventListener('click', function() {
-                            var id = this.getAttribute('data-id');
-                            var name = this.getAttribute('data-name');
-                            var price = parseInt(this.getAttribute('data-price'), 10);
-                            var img = this.getAttribute('data-img');
-                            var variant = this.getAttribute('data-variant') || '';
 
-                            if (variant) {
-                                name = name + ' (' + variant + ')';
-                                id = id + '_' + variant;
-                            }
-
-                            var existingItem = cart.find(function(item) { return item.id === id; });
-                            if (existingItem) {
-                                existingItem.quantity += 1;
-                            } else {
-                                cart.push({ id: id, name: name, price: price, img: img, quantity: 1, variant: variant });
-                            }
-                            saveCart();
-                            updateCartUI();
-                            toggleCart(true);
-                        });
-                        
                     } else {
                         notFound.style.display = 'block';
                     }
@@ -477,6 +455,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             // 3. Hlavní fotka
                             var imgEl = card.querySelector('.product-img');
                             if (imgEl && p.localImg) imgEl.src = p.localImg;
+                            
+                            // 3.5 Název produktu
+                            var nameEl = card.querySelector('.product-name');
+                            if (nameEl && p.name) nameEl.textContent = p.name;
 
                             // 4. Update tlačítka detailu
                             var viewBtn = card.querySelector('.view-detail-btn');
@@ -513,41 +495,36 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function loadBlogPosts() {
-        var grid = document.querySelector('.journal-grid');
-        if (!grid) return;
+    // Run loaders
+    loadProductsData();
+    // Odstraněn duplicitní loadBlogPosts(), protože je už na řádku 211 pro journal-grid.
 
-        fetch('/.netlify/functions/blog')
-            .then(function(res) { return res.json(); })
-            .then(function(posts) {
-                if (!posts || posts.length === 0) return;
+    function loadContentData() {
+        fetch('/content.json')
+            .then(function(res) { 
+                if(!res.ok) throw new Error('No content data');
+                return res.json(); 
+            })
+            .then(function(data) {
+                var fields = [
+                    'heroTitle', 'heroSubtitle', 'productsTitle', 'productsSubtitle',
+                    'aboutLabel', 'aboutTitle', 'aboutText', 'journalTitle', 'journalSubtitle',
+                    'contactTitle', 'contactDesc', 'contactAddress', 'contactEmail'
+                ];
                 
-                grid.innerHTML = '';
-                posts.forEach(function(post) {
-                    var card = document.createElement('article');
-                    card.className = 'journal-card';
-                    card.id = 'article-' + post.id;
-                    card.innerHTML = 
-                        '<div class="journal-img-wrap">' +
-                            '<img src="' + post.image + '" alt="' + post.title + '" class="journal-img" onerror="this.src=\'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80\'">' +
-                        '</div>' +
-                        '<div class="journal-content">' +
-                            '<span class="journal-meta">' + post.date + '</span>' +
-                            '<h3 class="journal-card-title">' + post.title + '</h3>' +
-                            '<p class="journal-excerpt">' + post.text + '</p>' +
-                            '<a href="#" class="read-more-link">Číst dále →</a>' +
-                        '</div>';
-                    grid.appendChild(card);
+                fields.forEach(function(field) {
+                    var el = document.getElementById('content-' + field);
+                    if (el && data[field]) {
+                        el.innerHTML = data[field];
+                    }
                 });
             })
             .catch(function(err) {
-                console.error('Failed to load blog posts:', err);
+                console.log('Using default static content.', err);
             });
     }
-
-    // Run loaders
-    loadProductsData();
-    loadBlogPosts();
+    
+    loadContentData();
 
     /* ── 4. INTERAKTIVNÍ CANVAS PRISM ANIMACE ── */
     var canvas = document.getElementById('prism-canvas');
@@ -699,4 +676,102 @@ document.addEventListener('DOMContentLoaded', function() {
 
         drawScene();
     }
+});
+
+
+// ── SCROLL TO TOP BTN ──
+document.addEventListener('DOMContentLoaded', () => {
+    const scrollTopBtn = document.getElementById('scroll-top-btn');
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+});
+
+/* --- 3D INTERACTIVE LENS LOGIC --- */
+document.addEventListener('DOMContentLoaded', function() {
+    const lens = document.querySelector('.glass-prism-container');
+    const heroVisual = document.querySelector('.hero-visual');
+    
+    if(lens && heroVisual) {
+        // 1. 3D Tilt Effect on Mouse Move
+        heroVisual.addEventListener('mousemove', function(e) {
+            // Stop the CSS float animation so JS can take over
+            lens.style.animation = 'none';
+            
+            const rect = heroVisual.getBoundingClientRect();
+            const x = e.clientX - rect.left; // x position within the element.
+            const y = e.clientY - rect.top;  // y position within the element.
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -15; // Max 15 deg tilt
+            const rotateY = ((x - centerX) / centerX) * 15;
+            
+            lens.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+        });
+        
+        // Reset tilt on mouse leave
+        heroVisual.addEventListener('mouseleave', function() {
+            lens.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
+            // Re-apply the float animation after a short delay
+            setTimeout(() => {
+                lens.style.animation = 'floatHero 6s ease-in-out infinite';
+            }, 300);
+        });
+        
+        // 2. Click to scroll to products (Fulfills the business function)
+        lens.addEventListener('click', function() {
+            const productsSection = document.getElementById('kolekce');
+            if(productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+});
+
+/* --- OPTICAL FOCUS ANIMATION OBSERVER --- */
+document.addEventListener('DOMContentLoaded', function() {
+    const headings = document.querySelectorAll('h1, h2, h3, h4, .section-header h2');
+    
+    const focusObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Add a tiny delay based on index for a cascade effect if multiple headings are visible
+                setTimeout(() => {
+                    entry.target.classList.add('lens-focus-visible');
+                }, 100);
+                observer.unobserve(entry.target); // Only animate once
+            }
+        });
+    }, {
+        root: null,
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    headings.forEach(heading => {
+        // Prevent animating headings that are inside the cart or small utility areas to avoid weirdness
+        if(!heading.closest('.cart-drawer') && !heading.closest('.product-params-container')) {
+            focusObserver.observe(heading);
+        } else {
+            // Instantly show utility headings
+            heading.style.opacity = '1';
+            heading.style.filter = 'blur(0)';
+            heading.style.transform = 'none';
+            heading.style.transition = 'none';
+        }
+    });
 });

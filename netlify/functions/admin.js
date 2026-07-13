@@ -51,7 +51,7 @@ exports.handler = async function(event, context) {
   if (event.httpMethod === 'POST' && action === 'update-product') {
     try {
       const body = JSON.parse(event.body || '{}');
-      const { id, price, inStock, description, image } = body;
+      const { id, price, inStock, description, image, name, shortDescription, variants, images } = body;
 
       if (!id) {
         return { statusCode: 400, headers, body: JSON.stringify({ error: 'Chybí ID produktu' }) };
@@ -66,6 +66,18 @@ exports.handler = async function(event, context) {
         return { statusCode: 404, headers, body: JSON.stringify({ error: 'Produkt nenalezen' }) };
       }
 
+      if (name !== undefined) {
+        products[productIndex].name = name;
+      }
+      if (shortDescription !== undefined) {
+        products[productIndex].shortDescription = shortDescription;
+      }
+      if (variants !== undefined) {
+        products[productIndex].variants = variants;
+      }
+      if (images !== undefined) {
+        products[productIndex].images = images;
+      }
       if (price !== undefined) {
         products[productIndex].price = `${price} Kč`;
       }
@@ -165,6 +177,27 @@ exports.handler = async function(event, context) {
     } catch (err) {
       console.error(err);
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'Nepodařilo se smazat článek' }) };
+    }
+  }
+
+  // 5.5 AUTHORIZED: Save content
+  if (event.httpMethod === 'POST' && action === 'save-content') {
+    try {
+      const body = JSON.parse(event.body || '{}');
+      const contentPath = path.join(process.cwd(), 'content.json');
+      
+      // Let's merge the body with existing if there are missing fields
+      let existingContent = {};
+      if (fs.existsSync(contentPath)) {
+        existingContent = JSON.parse(fs.readFileSync(contentPath, 'utf8'));
+      }
+      const newContent = { ...existingContent, ...body };
+      
+      fs.writeFileSync(contentPath, JSON.stringify(newContent, null, 4), 'utf8');
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true, content: newContent }) };
+    } catch (err) {
+      console.error(err);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'Nepodařilo se uložit obsah' }) };
     }
   }
 
