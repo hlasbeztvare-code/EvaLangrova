@@ -40,33 +40,148 @@
     </header>
 
 
-    <main class="success-page glassmorphism-card">
-        <div class="success-icon">✓</div>
-        <h1 class="success-title">Děkujeme za vaši objednávku!</h1>
-        <p class="success-desc">
-            Vaše objednávka byla úspěšně přijata.<br>
-            <span id="payment-status">Zpracováváme platbu...</span>
+    <main class="thanks-container">
+      <div class="thanks-card">
+        <!-- Success Icon -->
+        <div class="thanks-icon">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+
+        <h1>Děkujeme za vaši objednávku!</h1>
+        
+        <p class="thanks-subtitle" id="payment-status">
+          Platba proběhla úspěšně. Potvrzení a podrobnosti jsme vám právě poslali na e-mail.
         </p>
-        <a href="index.html" class="cta-button primary-cta">Návrat do obchodu</a>
+
+        <div class="order-badge" id="orderBadge" style="display: none;">
+          Číslo objednávky: <strong id="orderIdText"></strong>
+        </div>
+
+        <div class="thanks-actions">
+          <a href="index.html" class="btn-primary">Návrat do obchodu</a>
+        </div>
+      </div>
     </main>
 
+    <style>
+      .thanks-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 140px 1.5rem 60px;
+      }
+
+      .thanks-card {
+        max-width: 580px;
+        width: 100%;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 3.5rem 2.5rem;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      }
+
+      .thanks-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(46, 204, 113, 0.15);
+        color: #2ecc71;
+        border: 1px solid rgba(46, 204, 113, 0.3);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 0 30px rgba(46, 204, 113, 0.2);
+      }
+
+      .thanks-card h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--color-text-main, #ffffff);
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+      }
+
+      .thanks-subtitle {
+        color: var(--color-text-muted, #a0a0b0);
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin-bottom: 1.75rem;
+      }
+
+      .order-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        padding: 0.7rem 1.4rem;
+        border-radius: 30px;
+        font-size: 0.95rem;
+        color: var(--color-accent, #d68c3f);
+        margin-bottom: 2rem;
+      }
+
+      .thanks-actions {
+        display: flex;
+        justify-content: center;
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-accent, #d68c3f);
+        color: #000;
+        font-weight: 700;
+        padding: 1rem 2.5rem;
+        border-radius: 30px;
+        text-decoration: none;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        background: #e59a4c;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(214, 140, 63, 0.3);
+      }
+    </style>
+
     <script>
-        // Vyčistit košík po úspěšné objednávce
-        localStorage.removeItem('fotofiltry_cart');
+      // Vyčistit košík po úspěšné objednávce
+      localStorage.removeItem('fotofiltry_cart');
 
-        const params = new URLSearchParams(window.location.search);
-        const orderId = params.get('orderId');
-        const method = params.get('method');
-        const payment = params.get('payment');
-        
-        const statusEl = document.getElementById('payment-status');
+      // Dynamické vytažení parametrů z URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get('orderId');
+      const method = urlParams.get('method');
+      const payment = urlParams.get('payment');
+      
+      const statusEl = document.getElementById('payment-status');
+      const orderBadge = document.getElementById('orderBadge');
+      const orderIdText = document.getElementById('orderIdText');
 
-        if (method === 'transfer') {
-            statusEl.innerHTML = "Zvolili jste platbu bankovním převodem.<br>Faktura s platebními údaji vám byla zaslána na e-mail.";
-        } else if (payment === 'success' || orderId) {
-            statusEl.innerHTML = "Platba proběhla úspěšně.<br>Potvrzení a podrobnosti o objednávce vám byly zaslány na e-mail.";
-        }
+      if (orderId) {
+        orderIdText.textContent = orderId;
+        orderBadge.style.display = 'inline-block';
+      }
+
+      if (method === 'transfer') {
+        statusEl.innerHTML = "Zvolili jste platbu bankovním převodem.<br>Faktura s podklady k platbě vám byla právě zaslána na e-mail.";
+      } else if (payment === 'success' || orderId) {
+        statusEl.innerHTML = "Platba proběhla úspěšně.<br>Potvrzení a podrobnosti o objednávce jsme vám právě poslali na e-mail.";
+      }
     </script>
+
 
     <!-- ── FOOTER ── -->
     <footer class="main-footer" role="contentinfo">
