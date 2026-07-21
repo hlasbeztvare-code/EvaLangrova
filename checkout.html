@@ -534,8 +534,10 @@
                 submitBtn.textContent = 'Dokončit objednávku a zaplatit';
             }
         });
+        }
 
         // Kontrola stavu platby v URL při návratu z brány
+
         function checkUrlPaymentStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             const status = urlParams.get('status');
