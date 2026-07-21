@@ -285,15 +285,16 @@
                 const itemTotal = price * item.quantity;
                 subtotal += itemTotal;
                 html += `
-                    <div class="summary-item">
-                        <img src="${item.img}" class="summary-item-img" onerror="this.src='https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80'">
-                        <div class="summary-item-info">
-                            <div class="summary-item-title">${item.name}</div>
-                            <div style="color: var(--color-text-muted); font-size: 0.9rem;">${item.quantity} ks × ${price} Kč</div>
+                    <div class="summary-item" style="display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                        <img src="${item.img}" class="summary-item-img" style="width: 55px; height: 55px; max-width: 55px; max-height: 55px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" onerror="this.src='https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80'">
+                        <div class="summary-item-info" style="flex: 1; min-width: 0;">
+                            <div class="summary-item-title" style="font-weight: 600; color: var(--color-text-main); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+                            <div style="color: var(--color-text-muted); font-size: 0.85rem;">${item.quantity} ks × ${price} Kč</div>
                         </div>
-                        <div class="summary-item-price">${itemTotal} Kč</div>
+                        <div class="summary-item-price" style="font-weight: 600; color: var(--color-accent); flex-shrink: 0;">${itemTotal} Kč</div>
                     </div>
                 `;
+
             });
 
             container.innerHTML = html;

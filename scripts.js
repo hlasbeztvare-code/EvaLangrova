@@ -208,12 +208,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function observeElements(elements, animationClass) {
         elements.forEach((el, i) => {
-            if (!el.closest('.main-header') && !el.closest('.cart-drawer') && !el.classList.contains('reveal-fade-up') && !el.classList.contains('reveal-fade-left') && !el.classList.contains('reveal-fade-right')) {
+            if (!el.closest('.main-header') && !el.closest('.cart-drawer') && !el.closest('.checkout-page') && !el.closest('#checkout-items-container') && !el.classList.contains('summary-item-img') && !el.classList.contains('reveal-fade-up') && !el.classList.contains('reveal-fade-left') && !el.classList.contains('reveal-fade-right')) {
                 el.classList.add(animationClass);
                 el.style.transitionDelay = `${(i % 5) * 0.1}s`; 
                 scrollObserver.observe(el);
             }
         });
+
     }
 
     observeElements(elementsLeft, 'reveal-fade-left');
