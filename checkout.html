@@ -256,11 +256,23 @@
         let checkoutCart = JSON.parse(localStorage.getItem('fotofiltry_cart')) || [];
         let shippingCost = 89;
         
+        function parseItemPrice(item) {
+            if (typeof item.price === 'number' && !isNaN(item.price)) return item.price;
+            if (typeof item.price === 'string') {
+                const parsed = parseInt(item.price.replace(/[^0-9]/g, ''), 10);
+                if (!isNaN(parsed) && parsed > 0) return parsed;
+            }
+            return 990;
+        }
+
         function renderCheckoutCart() {
+            checkoutCart = JSON.parse(localStorage.getItem('fotofiltry_cart')) || [];
             const container = document.getElementById('checkout-items-container');
             if (checkoutCart.length === 0) {
                 container.innerHTML = '<p>Váš košík je prázdný.</p>';
                 document.getElementById('submit-btn').disabled = true;
+                document.getElementById('summary-subtotal').textContent = '0 Kč';
+                document.getElementById('summary-total').textContent = `${shippingCost} Kč`;
                 return;
             }
 
@@ -268,14 +280,16 @@
             let subtotal = 0;
 
             checkoutCart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
+                const price = parseItemPrice(item);
+                item.price = price; // Fix in memory
+                const itemTotal = price * item.quantity;
                 subtotal += itemTotal;
                 html += `
                     <div class="summary-item">
                         <img src="${item.img}" class="summary-item-img" onerror="this.src='https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80'">
                         <div class="summary-item-info">
                             <div class="summary-item-title">${item.name}</div>
-                            <div style="color: var(--color-text-muted); font-size: 0.9rem;">${item.quantity} ks</div>
+                            <div style="color: var(--color-text-muted); font-size: 0.9rem;">${item.quantity} ks × ${price} Kč</div>
                         </div>
                         <div class="summary-item-price">${itemTotal} Kč</div>
                     </div>
@@ -288,10 +302,12 @@
         }
 
         function updateTotals(subtotalOverride) {
-            let subtotal = subtotalOverride;
-            if (subtotal === undefined) {
-                subtotal = checkoutCart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-            }
+            checkoutCart = JSON.parse(localStorage.getItem('fotofiltry_cart')) || [];
+            let subtotal = typeof subtotalOverride === 'number' && !isNaN(subtotalOverride)
+                ? subtotalOverride
+                : checkoutCart.reduce((acc, item) => acc + (parseItemPrice(item) * item.quantity), 0);
+
+
 
             const shippingMethod = document.querySelector('input[name="shipping"]:checked').value;
             
@@ -442,6 +458,8 @@
             const createAccount = document.getElementById('create-account-cb').checked;
             const shippingMethod = document.querySelector('input[name="shipping"]:checked').value;
 
+            const currentSubtotal = checkoutCart.reduce((acc, item) => acc + (parseItemPrice(item) * item.quantity), 0);
+
             const orderData = {
                 customer: {
                     name: document.getElementById('billing-name').value,
@@ -465,8 +483,10 @@
                 alzaboxId: document.getElementById('alzabox-id').value,
                 paymentMethod: document.querySelector('input[name="payment"]:checked').value,
                 items: checkoutCart,
+                total: currentSubtotal,
                 shippingCost
             };
+
 
             try {
                 const res = await fetch('/api/comgate-create', {

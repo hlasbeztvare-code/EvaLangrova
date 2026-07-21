@@ -57,10 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
         var id = btn.getAttribute('data-id');
         if (!id) return; // Prevent empty clicks
         
-        var name = btn.getAttribute('data-name');
-        var price = parseInt(btn.getAttribute('data-price'), 10);
-        var img = btn.getAttribute('data-img');
+        var name = btn.getAttribute('data-name') || 'Fotofiltr';
+        var rawPrice = btn.getAttribute('data-price') || '990';
+        var price = parseInt(String(rawPrice).replace(/[^0-9]/g, ''), 10) || 990;
+        var img = btn.getAttribute('data-img') || 'images/kaleidoscope.png';
         var variant = btn.getAttribute('data-variant') || '';
+
 
         if (variant) {
             name = name + ' (' + variant + ')';
