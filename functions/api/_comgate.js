@@ -21,13 +21,14 @@ export function parseComgateResponse(responseText) {
  * Creates a payment via Comgate v1.0 API
  */
 export async function createComgatePayment(options, env) {
-    const merchant = env.COMGATE_MERCHANT_ID || options.merchant || 'G1058563';
-    const secret = env.COMGATE_SECRET || options.secret || 'QoQ2kHqKGO9eulQgl6Owy15FtzfpFY6O';
-    const test = (env.COMGATE_TEST !== undefined ? env.COMGATE_TEST : options.test) === 'false' ? 'false' : 'true';
+    const merchant = env.COMGATE_MERCHANT_ID || options.merchant;
+    const secret = env.COMGATE_SECRET || options.secret;
+    const test = (env.COMGATE_TEST !== undefined ? env.COMGATE_TEST : options.test) === 'true' || env.COMGATE_TEST === true || options.test === true ? 'true' : 'false';
 
     if (!merchant || !secret) {
-        throw new Error('Comgate merchant ID or secret key is missing.');
+        throw new Error('Comgate merchant ID or secret key is missing in environment variables.');
     }
+
 
 
     // Price in haléře (CZK * 100)
