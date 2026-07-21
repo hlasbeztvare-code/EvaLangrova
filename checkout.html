@@ -307,9 +307,8 @@
                 ? subtotalOverride
                 : checkoutCart.reduce((acc, item) => acc + (parseItemPrice(item) * item.quantity), 0);
 
-
-
-            const shippingMethod = document.querySelector('input[name="shipping"]:checked').value;
+            const shippingRadio = document.querySelector('input[name="shipping"]:checked');
+            const shippingMethod = shippingRadio ? shippingRadio.value : 'zasilkovna';
             
             if (shippingMethod === 'zasilkovna') {
                 shippingCost = 89;
@@ -321,10 +320,13 @@
 
             // Highlight selected radio
             document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
-            document.querySelector(`input[value="${shippingMethod}"]`).closest('.radio-option').classList.add('selected');
+            const selectedShippingEl = document.querySelector(`input[value="${shippingMethod}"]`);
+            if (selectedShippingEl && selectedShippingEl.closest('.radio-option')) {
+                selectedShippingEl.closest('.radio-option').classList.add('selected');
+            }
             
             const paymentMethod = document.querySelector('input[name="payment"]:checked');
-            if(paymentMethod) {
+            if (paymentMethod && paymentMethod.closest('.radio-option')) {
                 paymentMethod.closest('.radio-option').classList.add('selected');
             }
 
@@ -332,18 +334,22 @@
             const zasilkovnaWidget = document.getElementById('zasilkovna-widget-container');
             const alzaboxWidget = document.getElementById('alzabox-widget-container');
             
-            zasilkovnaWidget.classList.remove('active');
-            alzaboxWidget.style.display = 'none';
+            if (zasilkovnaWidget) zasilkovnaWidget.classList.remove('active');
+            if (alzaboxWidget) alzaboxWidget.style.display = 'none';
 
             if (shippingMethod === 'zasilkovna') {
-                zasilkovnaWidget.classList.add('active');
+                if (zasilkovnaWidget) zasilkovnaWidget.classList.add('active');
             } else if (shippingMethod === 'alzabox') {
-                alzaboxWidget.style.display = 'block';
+                if (alzaboxWidget) alzaboxWidget.style.display = 'block';
             }
 
-            document.getElementById('summary-shipping').textContent = `${shippingCost} Kč`;
-            document.getElementById('summary-total').textContent = `${subtotal + shippingCost} Kč`;
+            const sumShipping = document.getElementById('summary-shipping');
+            if (sumShipping) sumShipping.textContent = `${shippingCost} Kč`;
+
+            const sumTotal = document.getElementById('summary-total');
+            if (sumTotal) sumTotal.textContent = `${subtotal + shippingCost} Kč`;
         }
+
 
         // Zásilkovna Widget setup
         const packetaOptions = { valueFormat: "Odkaz na pobočku: id" };
