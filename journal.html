@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Journal — Fotofiltry.cz</title>
+    <meta name="description" content="Příběhy, tipy a tutoriály pro práci s optickými filtry. Přečtěte si články z našeho Studio Journalu.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Vlastní styly -->
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/custom-styles.css">
+    
+    <style>
+        .journal-hero {
+            padding: 120px 20px 60px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .journal-hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        .journal-hero p {
+            color: var(--color-text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .journal-grid-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 120px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── BACKGROUND refract grid ── -->
+    <div class="bg-glow" id="bg-glow" aria-hidden="true"></div>
+
+    <!-- ── HEADER ── -->
+    <header class="main-header" id="header-section">
+        <div class="header-container">
+            <a href="/" class="brand-logo" id="logo-home">
+                <img src="/images/logo.png" alt="fotofiltry.cz" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-text-fallback').style.display='inline';" style="max-height: 40px; width: auto; display: block;">
+                <span class="logo-text" id="logo-text-fallback" style="display: none;">foto<b>filtr</b>y.cz</span>
+            </a>
+            
+            <nav class="nav-menu" aria-label="Hlavní navigace" id="main-navigation">
+                <a href="/#kolekce" class="nav-link">Kolekce</a>
+                <a href="/#o-nas" class="nav-link">O nás</a>
+                <a href="/#journal" class="nav-link active">Journal</a>
+                <a href="/#hodnoceni" class="nav-link">Hodnocení</a>
+                <a href="/#kontakt" class="nav-link">Kontakt</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="cart-toggle-btn" id="cart-trigger" aria-label="Nákupní košík, 0 položek">
+                    <span class="cart-icon" aria-hidden="true">🛒</span>
+                    <span class="cart-count" id="cart-counter" aria-hidden="true">0</span>
+                </button>
+                <button class="mobile-menu-toggle" id="mobile-menu-trigger" aria-label="Menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="journal-hero">
+            <h1 id="dyn-journalTitle">Studio Journal</h1>
+            <p id="dyn-journalSubtitle">Příběhy z praxe, inspirace, zákulisí a tipy pro práci s filtry.</p>
+        </section>
+
+        <section class="journal-grid-page">
+            <div class="journal-grid" id="journal-grid-hub">
+                <!-- Dynamicky načítané články přes JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- ── FOOTER ── -->
+    <footer class="main-footer" id="footer-section">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="footer-logo">foto<b>filtr</b>y.cz</span>
+                <p>Nástroje pro filmaře a fotografy, kteří hledají víc než jen ostrost.</p>
+            </div>
+            
+            <div class="footer-links-grid">
+                <div class="footer-col">
+                    <h3>Kolekce</h3>
+                    <a href="/#kolekce">Prism Series</a>
+                    <a href="/#kolekce">Fog Series</a>
+                    <a href="/#kolekce">Halo Series</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Informace</h3>
+                    <a href="/kontakt.html">Napište nám</a>
+                    <a href="/reklamace.html">Reklamace a vrácení</a>
+                    <a href="/obchodni-podminky.html">Obchodní podmínky</a>
+                    <a href="/ochrana-soukromi.html">Ochrana soukromí</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Sledujte nás</h3>
+                    <a href="https://instagram.com/fotofiltrycz" target="_blank" aria-label="Instagram">Instagram</a>
+                    <a href="https://vimeo.com/fotofiltrycz" target="_blank" aria-label="Vimeo">Vimeo</a>
+                    <a href="/journal">Studio Journal</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="https://l-code-dynamics.com" target="_blank" style="color: #8e8e9f; text-decoration: none;">l-code-dynamics.com</a></p>
+        </div>
+    </footer>
+
+    <!-- ── CART SLIDEOUT DRAWER ── -->
+    <div class="cart-drawer" id="cart-drawer" aria-hidden="true">
+        <div class="cart-drawer-overlay" id="cart-overlay"></div>
+        <div class="cart-drawer-content">
+            <div class="cart-drawer-header">
+                <h3>Váš výběr</h3>
+                <button class="close-cart-btn" id="cart-close" aria-label="Zavřít košík">×</button>
+            </div>
+            
+            <div class="cart-items-list" id="cart-items-container">
+                <!-- Dynamically filled -->
+                <p class="cart-empty-message">Košík je prázdný.</p>
+            </div>
+            
+            <div class="cart-drawer-footer" id="cart-footer">
+                <div class="cart-total-line">
+                    <span>Mezisoučet:</span>
+                    <strong id="cart-total-price">0 Kč</strong>
+                </div>
+                <p class="cart-tax-info">Cena je konečná. Doprava bude spočítána v dalším kroku.</p>
+                <button class="checkout-button" id="cart-checkout">Pokračovat k objednávce</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SCROLL TO TOP BTN ── -->
+    <button id="scroll-top-btn" class="scroll-top-btn" aria-label="Nahoru">↑</button>
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+    <script src="/scripts.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const journalGridHub = document.getElementById('journal-grid-hub');
+            if (journalGridHub) {
+                fetch('/api/blog')
+                    .then(res => res.json())
+                    .then(blogs => {
+                        journalGridHub.innerHTML = '';
+                        blogs.forEach((blog, index) => {
+                            const article = document.createElement('article');
+                            article.className = 'journal-card';
+                            article.style.cssText = `opacity: 1; transform: none; animation: none;`;
+                            article.innerHTML = `
+                                <div class="journal-img-wrap">
+                                    <a href="/blog/${blog.slug || blog.id}" style="display:block;">
+                                        <img src="${blog.image}" alt="${blog.title}" class="journal-img">
+                                    </a>
+                                </div>
+                                <div class="journal-content">
+                                    <span class="journal-meta">${blog.date}</span>
+                                    <h3 class="journal-card-title">${blog.title}</h3>
+                                    <p class="journal-excerpt">${blog.text}</p>
+                                    <a href="/blog/${blog.slug || blog.id}" class="read-more-link">Číst dále →</a>
+                                </div>
+                            `;
+                            journalGridHub.appendChild(article);
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Error loading blogs:", err);
+                        journalGridHub.innerHTML = '<p style="text-align:center; padding: 40px; color: var(--color-text-muted);">Nepodařilo se načíst články.</p>';
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

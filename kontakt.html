@@ -168,28 +168,51 @@
             </div>
         </div>
         <div class="footer-copyright">
-            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="https://l-code-dynamics.com" target="_blank" style="color: #8e8e9f; text-decoration: none;">l-code-dynamics.com</a></p>
         </div>
     </footer>
 
     <script src="scripts.js"></script>
     <script>
         document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const btn = form.querySelector('button[type="submit"]');
-                const origText = btn.textContent;
-                btn.textContent = 'Odesílám...';
-                btn.disabled = true;
+                const orig = btn.innerText;
+                btn.innerText = 'Odesílám...';
+                
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const res = await fetch('/api/submit-form', {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    if (res.ok) {
+                        btn.innerText = 'Odesláno!';
+                        btn.style.background = '#4CAF50';
+                        btn.style.color = 'white';
+                        form.reset();
+                    } else {
+                        btn.innerText = 'Chyba!';
+                        btn.style.background = 'red';
+                        btn.style.color = 'white';
+                    }
+                } catch (err) {
+                    btn.innerText = 'Chyba!';
+                    btn.style.background = 'red';
+                    btn.style.color = 'white';
+                }
+
                 setTimeout(() => {
-                    btn.textContent = 'Odesláno! Brzy se Vám ozveme.';
-                    btn.style.background = '#4CAF50';
-                    btn.style.color = '#fff';
-                    btn.style.boxShadow = 'none';
-                    form.reset();
-                }, 1500);
+                    btn.innerText = orig;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 3000);
             });
-        });
-    </script>
+        });</script>
 </body>
 </html>

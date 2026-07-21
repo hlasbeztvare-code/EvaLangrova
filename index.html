@@ -12,8 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&display=swap" rel="stylesheet">
     
     <!-- Vlastní styly -->
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="custom-styles.css">
+    <link rel="preload" href="/styles.css" as="style">
+    <link rel="preload" href="/custom-styles.css" as="style">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/custom-styles.css">
     
     <!-- Packeta Widget v6 -->
     <script src="https://widget.packeta.com/v6/www/js/library.js"></script>
@@ -40,13 +42,18 @@
             </nav>
 
             <div class="header-actions">
-                <button class="cart-toggle-btn" id="cart-trigger" aria-label="Nákupní košík">
-                    <span class="cart-icon">🛒</span>
-                    <span class="cart-count" id="cart-counter">0</span>
+                <button class="cart-toggle-btn" id="cart-trigger" aria-label="Nákupní košík, 0 položek">
+                    <span class="cart-icon" aria-hidden="true">🛒</span>
+                    <span class="cart-count" id="cart-counter" aria-hidden="true">0</span>
+                </button>
+                <button class="mobile-menu-toggle" id="mobile-menu-trigger" aria-label="Menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
                 </button>
             </div>
         </div>
     </header>
+
+    <main>
 
     <!-- ── HERO SECTION ── -->
     <section class="hero-section" id="hero">
@@ -81,7 +88,7 @@
                 <!-- Product 1: KALEIDOSKOP -->
                 <div class="product-card" id="card-kaleidoscope">
                     <div class="card-image-wrap">
-                        <img src="images/kaleidoscope.png" alt="KALEIDOSKOP Filter" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'">
+                        <img src="images/kaleidoscope.png" alt="KALEIDOSKOP Filter" class="product-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'">
                         <div class="card-badge">Bestseller</div>
                     </div>
                     <div class="card-info">
@@ -97,7 +104,7 @@
                 <!-- Product 2: FOG -->
                 <div class="product-card" id="card-fog">
                     <div class="card-image-wrap">
-                        <img src="images/fog.png" alt="FOG Filter" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=600&q=80'">
+                        <img src="images/fog.png" alt="FOG Filter" class="product-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=600&q=80'">
                         <div class="card-badge">Popular</div>
                     </div>
                     <div class="card-info">
@@ -113,7 +120,7 @@
                 <!-- Product 3: HALO -->
                 <div class="product-card" id="card-halo">
                     <div class="card-image-wrap">
-                        <img src="images/halo.jpg" alt="HALO Filter" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=600&q=80'">
+                        <img src="images/halo.jpg" alt="HALO Filter" class="product-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=600&q=80'">
                         <div class="card-badge">Exclusive</div>
                     </div>
                     <div class="card-info">
@@ -135,7 +142,7 @@
         <div class="section-container split-layout">
             <div class="about-visual">
                 <div class="story-image-container">
-                    <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=800&q=80" alt="Fotograf s naším filtrem" class="about-main-img">
+                    <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=800&q=80" alt="Fotograf s naším filtrem" class="about-main-img" loading="lazy">
                 </div>
             </div>
             
@@ -257,6 +264,7 @@
     
 
     <!-- ── FOOTER ── -->
+    </main>
     <footer class="main-footer" role="contentinfo">
         <div class="footer-container">
             <div class="footer-brand">
@@ -267,20 +275,20 @@
             
             <div class="footer-links-grid">
                 <div class="footer-col">
-                    <h4>Kolekce</h4>
+                    <h3>Kolekce</h3>
                     <a href="index.html#kolekce">Prism Series</a>
                     <a href="index.html#kolekce">Fog Series</a>
                     <a href="index.html#kolekce">Halo Series</a>
                 </div>
                 <div class="footer-col">
-                    <h4>Informace</h4>
+                    <h3>Informace</h3>
                     <a href="kontakt.html">Napište nám</a>
                     <a href="reklamace.html">Reklamace a vrácení</a>
                     <a href="obchodni-podminky.html">Obchodní podmínky</a>
                     <a href="ochrana-soukromi.html">Ochrana soukromí</a>
                 </div>
                 <div class="footer-col">
-                    <h4>Sledujte nás</h4>
+                    <h3>Sledujte nás</h3>
                     <a href="https://instagram.com/fotofiltrycz" target="_blank" aria-label="Instagram">Instagram</a>
                     <a href="https://vimeo.com/fotofiltrycz" target="_blank" aria-label="Vimeo">Vimeo</a>
                     <a href="index.html#journal">Studio Journal</a>
@@ -288,7 +296,7 @@
             </div>
         </div>
         <div class="footer-copyright">
-            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="https://l-code-dynamics.com" target="_blank" style="color: #8e8e9f; text-decoration: none;">l-code-dynamics.com</a></p>
         </div>
     </footer>
 

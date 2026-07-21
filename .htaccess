@@ -1,0 +1,5 @@
+RewriteEngine On
+
+# Přesměrování všech ostatních (aliasových) domén na hlavní doménu fotofiltry.cz
+RewriteCond %{HTTP_HOST} !^fotofiltry\.cz$ [NC]
+RewriteRule ^(.*)$ https://fotofiltry.cz/$1 [L,R=301]

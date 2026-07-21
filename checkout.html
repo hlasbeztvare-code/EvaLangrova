@@ -96,41 +96,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- SLOUPEC 2: DOPRAVA A PLATBA -->
-            <div class="checkout-col">
-                <div class="checkout-block glassmorphism-card" style="margin-bottom: 30px;">
-                    <h2>2. Doprava</h2>
-                    
-                    <label class="radio-option selected" id="opt-zasilkovna">
-                        <input type="radio" name="shipping" value="zasilkovna" checked onchange="updateTotals()">
-                        <div class="radio-content">
-                            <div>
-                                <div class="radio-title">Zásilkovna</div></div>
-                                <div class="radio-desc">Doručení na výdejní místo</div>
-                            </div>
-                            <div class="radio-price">89 Kč</div>
-                        </div>
-                    </label>
-                    
-                    <div class="zasilkovna-widget-container active" id="zasilkovna-widget-container">
-                        <button type="button" id="packeta-widget-btn" class="zasilkovna-btn">Vybrat výdejní místo</button>
-                        <div id="zasilkovna-selected"></div>
-                        <input type="hidden" id="zasilkovna-id" name="zasilkovna-id">
-                    </div>
-                    
-                    <label class="radio-option" id="opt-osobni">
-                        <input type="radio" name="shipping" value="osobni" onchange="updateTotals()">
-                        <div class="radio-content">
-                            <div>
-                                <div class="radio-title">Osobní odběr</div>
-                                <div class="radio-desc">Studio Praha 7</div>
-                            </div>
-                            <div class="radio-price">Zdarma</div>
-                        </div>
-                    </label>
-                </div>
 
                 <div class="checkout-block glassmorphism-card">
                     <h2>3. Platba</h2>
@@ -156,9 +121,42 @@
                     </label>
                 </div>
             </div>
+            </div>
 
-            <!-- SLOUPEC 3: SHRNUTÍ -->
+            <!-- SLOUPEC 2: DOPRAVA A SHRNUTÍ -->
             <div class="checkout-sidebar">
+                <div class="checkout-block glassmorphism-card" style="margin-bottom: 30px;">
+                    <h2>2. Doprava</h2>
+                    
+                    <label class="radio-option selected" id="opt-zasilkovna">
+                        <input type="radio" name="shipping" value="zasilkovna" checked onchange="updateTotals()">
+                        <div class="radio-content">
+                            <div>
+                                <div class="radio-title">Zásilkovna</div>
+                                <div class="radio-desc">Doručení na výdejní místo</div>
+                            </div>
+                            <div class="radio-price">89 Kč</div>
+                        </div>
+                    </label>
+                    
+                    <div class="zasilkovna-widget-container active" id="zasilkovna-widget-container">
+                        <button type="button" id="packeta-widget-btn" class="zasilkovna-btn">Vybrat výdejní místo</button>
+                        <div id="zasilkovna-selected"></div>
+                        <input type="hidden" id="zasilkovna-id" name="zasilkovna-id">
+                    </div>
+                    
+                    <label class="radio-option" id="opt-osobni">
+                        <input type="radio" name="shipping" value="osobni" onchange="updateTotals()">
+                        <div class="radio-content">
+                            <div>
+                                <div class="radio-title">Osobní odběr</div>
+                                <div class="radio-desc">Studio Praha 7</div>
+                            </div>
+                            <div class="radio-price">Zdarma</div>
+                        </div>
+                    </label>
+                </div>
+
                 <div class="checkout-block glassmorphism-card" style="position: sticky; top: 120px;">
                     <h2>Vaše objednávka</h2>
                     <div id="checkout-items-container">
@@ -248,7 +246,7 @@
             </div>
         </div>
         <div class="footer-copyright">
-            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="https://l-code-dynamics.com" target="_blank" style="color: #8e8e9f; text-decoration: none;">l-code-dynamics.com</a></p>
         </div>
     </footer>
     <script src="scripts.js"></script>
@@ -471,16 +469,19 @@
             };
 
             try {
-                const res = await fetch('/.netlify/functions/comgate-create', {
+                const res = await fetch('/api/comgate-create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(orderData)
                 });
 
                 const data = await res.json();
-                if (res.ok && data.url) {
-                    // Redirect to payment gateway (or next step)
-                    window.location.href = data.url;
+                const targetUrl = data.redirectUrl || data.url;
+
+                if (res.ok && targetUrl) {
+                    // Vyčištění košíku po úspěšném vytvoření platby/objednávky
+                    localStorage.removeItem('fotofiltry_cart');
+                    window.location.href = targetUrl;
                 } else {
                     feedback.textContent = data.error || 'Nastala chyba při vytváření platby.';
                     submitBtn.disabled = false;
@@ -493,11 +494,28 @@
             }
         });
 
+        // Kontrola stavu platby v URL při návratu z brány
+        function checkUrlPaymentStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const feedback = document.getElementById('checkout-feedback');
+
+            if (status === 'cancelled') {
+                feedback.style.color = '#e74c3c';
+                feedback.textContent = '⚠️ Platba byla na platební bráně zrušena. Můžete to zkust znovu.';
+            } else if (status === 'unpaid') {
+                feedback.style.color = '#e67e22';
+                feedback.textContent = '⚠️ Platba nebyla dokončena. Zkontrolujte prosím své údaje a zkuste to znovu.';
+            }
+        }
+
         // Replace with your real Packeta API key
         const packetaApiKey = "a90886c33e8b0a9c"; 
 
         // Init
         renderCheckoutCart();
+        checkUrlPaymentStatus();
     </script>
+
 </body>
 </html>

@@ -10,25 +10,27 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="custom-styles.css">
+    <link rel="preload" href="/styles.css" as="style">
+    <link rel="preload" href="/custom-styles.css" as="style">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/custom-styles.css">
 </head>
 <body>
     <div class="bg-glow" id="bg-glow" aria-hidden="true"></div>
 
     <header class="main-header" id="header-section">
         <div class="header-container">
-            <a href="index.html" class="brand-logo" id="logo-home">
-                <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-text-fallback').style.display='inline';" style="max-height: 40px; width: auto; display: block;">
+            <a href="/" class="brand-logo" id="logo-home">
+                <img src="/images/logo.png" alt="fotofiltry.cz" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-text-fallback').style.display='inline';" style="max-height: 40px; width: auto; display: block;">
                 <span class="logo-text" id="logo-text-fallback" style="display: none;">foto<b>filtr</b>y.cz</span>
             </a>
             
             <nav class="nav-menu" aria-label="Hlavní navigace" id="main-navigation">
-                <a href="index.html#kolekce" class="nav-link">Kolekce</a>
-                <a href="index.html#o-nas" class="nav-link">O nás</a>
-                <a href="index.html#journal" class="nav-link">Journal</a>
-                <a href="index.html#hodnoceni" class="nav-link">Hodnocení</a>
-                <a href="index.html#kontakt" class="nav-link">Kontakt</a>
+                <a href="/#kolekce" class="nav-link">Kolekce</a>
+                <a href="/#o-nas" class="nav-link">O nás</a>
+                <a href="/#journal" class="nav-link">Journal</a>
+                <a href="/#hodnoceni" class="nav-link">Hodnocení</a>
+                <a href="/#kontakt" class="nav-link">Kontakt</a>
             </nav>
 
             <div class="header-actions">
@@ -36,13 +38,16 @@
                     <span class="cart-icon">🛒</span>
                     <span class="cart-count" id="cart-counter">0</span>
                 </button>
+                <button class="mobile-menu-toggle" id="mobile-menu-trigger" aria-label="Menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                </button>
             </div>
         </div>
     </header>
 
     <main class="custom-flowing-stream-block" style="padding-top: 120px; min-height: 80vh;">
         <div class="section-container">
-            <a href="index.html#journal" class="back-link-btn">
+            <a href="/journal" class="back-link-btn">
                 <span style="font-size: 18px;">&larr;</span> Zpět na Journal
             </a>
         </div>
@@ -59,13 +64,13 @@
             </div>
             
             <div style="margin-top: 60px; text-align: center; border-top: 1px solid var(--color-border); padding-top: 30px;">
-                <a href="index.html#journal" class="cta-button secondary-cta" style="display: inline-block;">Zpět na Journal</a>
+                <a href="/journal" class="cta-button secondary-cta" style="display: inline-block;">Zpět na Journal</a>
             </div>
         </div>
         
         <div id="article-not-found" style="display: none; text-align: center; padding: 100px 0;">
             <h2 style="font-size: 2rem; color: var(--color-text-main);">Článek nebyl nalezen.</h2>
-            <a href="index.html#journal" class="cta-button primary-cta" style="margin-top: 20px; display: inline-flex;">Zpět na Journal</a>
+            <a href="/journal" class="cta-button primary-cta" style="margin-top: 20px; display: inline-flex;">Zpět na Journal</a>
         </div>
     </main>
 
@@ -73,7 +78,7 @@
     <footer class="main-footer" role="contentinfo">
         <div class="footer-container">
             <div class="footer-brand">
-                <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="max-height: 40px; width: auto; display: block; margin-bottom: 15px;">
+                <img src="/images/logo.png" alt="fotofiltry.cz" class="brand-logo-img footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="max-height: 40px; width: auto; display: block; margin-bottom: 15px;">
                 <div class="f-logo-text" style="display: none;">foto<b>filtr</b>y.cz</div>
                 <p class="f-brand-tagline">Nekompromisní optická kvalita a jedinečný look pro moderní tvůrce.</p>
             </div>
@@ -81,27 +86,27 @@
             <div class="footer-links-grid">
                 <div class="footer-col">
                     <h4>Kolekce</h4>
-                    <a href="index.html#kolekce">Prism Series</a>
-                    <a href="index.html#kolekce">Fog Series</a>
-                    <a href="index.html#kolekce">Halo Series</a>
+                    <a href="/#kolekce">Prism Series</a>
+                    <a href="/#kolekce">Fog Series</a>
+                    <a href="/#kolekce">Halo Series</a>
                 </div>
                 <div class="footer-col">
                     <h4>Informace</h4>
-                    <a href="kontakt.html">Napište nám</a>
-                    <a href="reklamace.html">Reklamace a vrácení</a>
-                    <a href="obchodni-podminky.html">Obchodní podmínky</a>
-                    <a href="ochrana-soukromi.html">Ochrana soukromí</a>
+                    <a href="/kontakt.html">Napište nám</a>
+                    <a href="/reklamace.html">Reklamace a vrácení</a>
+                    <a href="/obchodni-podminky.html">Obchodní podmínky</a>
+                    <a href="/ochrana-soukromi.html">Ochrana soukromí</a>
                 </div>
                 <div class="footer-col">
                     <h4>Sledujte nás</h4>
                     <a href="https://instagram.com/fotofiltrycz" target="_blank" aria-label="Instagram">Instagram</a>
                     <a href="https://vimeo.com/fotofiltrycz" target="_blank" aria-label="Vimeo">Vimeo</a>
-                    <a href="index.html#journal">Studio Journal</a>
+                    <a href="/#journal">Studio Journal</a>
                 </div>
             </div>
         </div>
         <div class="footer-copyright">
-            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="https://l-code-dynamics.com" target="_blank" style="color: #8e8e9f; text-decoration: none;">l-code-dynamics.com</a></p>
         </div>
     </footer>
 
@@ -126,32 +131,40 @@
         </div>
     </div>
 
-    <script src="scripts.js"></script>
+    <script src="/scripts.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const articleId = params.get('id');
 
-            if (articleId) {
-                fetch('blog.json')
+            function renderArticle(article) {
+                if(article.meta_title) document.title = article.meta_title;
+                else document.title = `${article.title} — Fotofiltry.cz`;
+                
+                document.getElementById('article-meta').innerHTML = `${article.date}`;
+                document.getElementById('article-title').innerHTML = article.title;
+                document.getElementById('article-img').src = article.image;
+                document.getElementById('article-body').innerHTML = article.text || article.content;
+                document.getElementById('article-content').style.display = 'block';
+                
+                // Aplikovat oranžovou barvu na poslední slovo nadpisu
+                const titleEl = document.getElementById('article-title');
+                if (titleEl && titleEl.children.length === 0 && titleEl.textContent.trim().includes(' ')) {
+                    const words = titleEl.textContent.trim().split(' ');
+                    const lastWord = words.pop();
+                    titleEl.innerHTML = words.join(' ') + ' <span style="color: var(--color-accent);">' + lastWord + '</span>';
+                }
+            }
+
+            if (window.PRELOADED_ARTICLE) {
+                renderArticle(window.PRELOADED_ARTICLE);
+            } else if (articleId) {
+                fetch('/api/blog')
                     .then(response => response.json())
                     .then(blogs => {
                         const article = blogs.find(b => b.id === articleId);
                         if (article) {
-                            document.title = `${article.title} — Fotofiltry.cz`;
-                            document.getElementById('article-meta').innerHTML = `${article.category} | ${article.date}`;
-                            document.getElementById('article-title').innerHTML = article.title;
-                            document.getElementById('article-img').src = article.image;
-                            document.getElementById('article-body').innerHTML = article.content;
-                            document.getElementById('article-content').style.display = 'block';
-                            
-                            // Aplikovat oranžovou barvu na poslední slovo nadpisu (jak požadováno)
-                            const titleEl = document.getElementById('article-title');
-                            if (titleEl && titleEl.children.length === 0 && titleEl.textContent.trim().includes(' ')) {
-                                const words = titleEl.textContent.trim().split(' ');
-                                const lastWord = words.pop();
-                                titleEl.innerHTML = words.join(' ') + ' <span style="color: var(--color-accent);">' + lastWord + '</span>';
-                            }
+                            renderArticle(article);
                         } else {
                             document.getElementById('article-not-found').style.display = 'block';
                         }

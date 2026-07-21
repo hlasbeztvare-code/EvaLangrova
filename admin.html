@@ -10,6 +10,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
+    <!-- Quill WYSIWYG -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    
+    <!-- DOMPurify -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    
     <style>
         :root {
             --bg-base: #0a0a0c;
@@ -489,16 +496,25 @@
                 
                 <div class="form-group">
                     <label>Úvodní fotka</label>
-                    <div id="post-drag-zone" class="drag-drop-zone">
+                    <div id="post-drag-zone" class="drag-drop-zone" style="padding: 40px 20px;">
                         <p>Přetáhněte sem obrázek nebo klikněte pro výběr</p>
+                        <p style="margin-top: 5px; color: var(--accent); font-size: 0.85rem;">Ideální rozměr fotky je 16:9 (např. 1920x1080px). Systém fotku automaticky ořízne tak, aby seděla do designu.</p>
                         <input type="file" id="post-file-input" accept="image/*" style="display:none">
-                        <span id="post-img-path" style="font-size: 0.8rem; color: var(--accent); margin-top: 5px; display: block;"></span>
+                        <img id="post-img-preview" style="display:none; width: 100%; height: auto; margin-top: 20px; border-radius: 6px; object-fit: cover; max-height: 300px;">
+                        <span id="post-img-path" style="display:none;" data-url=""></span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="post-text">Obsah článku (text)</label>
-                    <textarea id="post-text" rows="8" required placeholder="Napište obsah článku..."></textarea>
+                    <label for="post-text">Perex (krátký text na kartu blogu)</label>
+                    <textarea id="post-text" rows="3" required placeholder="Napište krátký, chytlavý úvod..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Obsah článku</label>
+                    <div style="background: white; color: black; border-radius: 4px; overflow: hidden;">
+                        <div id="editor-container" style="height: 400px; font-family: var(--font);"></div>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn" id="save-post-submit">Uložit článek</button>
@@ -530,7 +546,7 @@
             const password = document.getElementById('password').value;
 
             try {
-                const res = await fetch('/.netlify/functions/admin?action=login', {
+                const res = await fetch('/api/admin?action=login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password })
@@ -559,7 +575,7 @@
 
         async function verifyToken() {
             try {
-                const res = await fetch('/.netlify/functions/admin?action=status', {
+                const res = await fetch('/api/admin?action=status', {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (res.ok) {
@@ -595,12 +611,15 @@
             contactTitle: 'Kontakt Nadpis',
             contactDesc: 'Kontakt Popis',
             contactAddress: 'Kontakt Adresa',
-            contactEmail: 'Kontakt E-mail'
+            contactEmail: 'Kontakt E-mail',
+            cookieText: 'Cookie Lišta - Text (HTML)',
+            cookieButton: 'Cookie Lišta - Tlačítko (Rozumím)',
+            cookieLink: 'Cookie Lišta - Tlačítko (Zásady ochrany)'
         };
 
         async function loadWebContent() {
             try {
-                const res = await fetch('/content.json');
+                const res = await fetch('/api/content');
                 currentWebContent = await res.json();
                 
                 const container = document.getElementById('content-fields-container');
@@ -645,7 +664,7 @@
             });
 
             try {
-                const res = await fetch('/.netlify/functions/admin?action=save-content', {
+                const res = await fetch('/api/admin?action=save-content', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -670,7 +689,7 @@
         // ── PRODUCTS MANAGEMENT ──
         async function loadProducts() {
             try {
-                const res = await fetch('/products.json');
+                const res = await fetch('/api/products');
                 const products = await res.json();
                 const container = document.getElementById('products-list-container');
                 container.innerHTML = '';
@@ -779,7 +798,7 @@
                 const base64 = reader.result;
 
                 try {
-                    const res = await fetch('/.netlify/functions/admin?action=upload-image', {
+                    const res = await fetch('/api/admin?action=upload-image', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -822,7 +841,7 @@
             feedback.className = 'feedback';
 
             try {
-                const res = await fetch('/.netlify/functions/admin?action=update-product', {
+                const res = await fetch('/api/admin?action=update-product', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -858,7 +877,7 @@
 
         async function loadBlogPosts() {
             try {
-                const res = await fetch('/.netlify/functions/blog');
+                const res = await fetch('/api/blog');
                 blogPosts = await res.json();
                 const container = document.getElementById('blog-list-container');
                 container.innerHTML = '';
@@ -891,6 +910,20 @@
             }
         }
 
+        // Initialize Quill Editor for Blog Posts
+        const toolbarOptions = [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'bullet' }],
+            [{ 'align': [] }],
+            [{ 'color': ['#f3f3f6', '#d68c3f', '#8e8e9f'] }], // Brand colors restriction
+            ['clean']
+        ];
+        const quill = new Quill('#editor-container', {
+            theme: 'snow',
+            modules: { toolbar: toolbarOptions }
+        });
+
         // Add Post Modal trigger
         const postModal = document.getElementById('post-modal');
         const addPostBtn = document.getElementById('add-post-btn');
@@ -902,8 +935,10 @@
             document.getElementById('post-id').value = '';
             document.getElementById('post-title').value = '';
             document.getElementById('post-text').value = '';
+            quill.root.innerHTML = '';
             document.getElementById('post-img-path').textContent = '';
             delete document.getElementById('post-img-path').dataset.url;
+            document.getElementById('post-img-preview').style.display = 'none';
             document.getElementById('modal-title').textContent = 'Napsat nový článek';
             postFeedback.textContent = '';
             postModal.style.display = 'flex';
@@ -944,7 +979,7 @@
             reader.readAsDataURL(file);
             reader.onload = async () => {
                 try {
-                    const res = await fetch('/.netlify/functions/admin?action=upload-image', {
+                    const res = await fetch('/api/admin?action=upload-image', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -960,6 +995,10 @@
                         const pathEl = document.getElementById('post-img-path');
                         pathEl.textContent = `Nahráno: ${data.imageUrl}`;
                         pathEl.dataset.url = data.imageUrl;
+                        
+                        const previewEl = document.getElementById('post-img-preview');
+                        previewEl.src = data.imageUrl;
+                        previewEl.style.display = 'block';
                     } else {
                         alert(data.error);
                     }
@@ -975,19 +1014,24 @@
             const id = document.getElementById('post-id').value;
             const title = document.getElementById('post-title').value;
             const text = document.getElementById('post-text').value;
+            
+            // Get raw HTML from Quill and sanitize it using DOMPurify
+            const rawHtml = quill.root.innerHTML;
+            const content = DOMPurify.sanitize(rawHtml);
+            
             const image = document.getElementById('post-img-path').dataset.url || '';
 
             postFeedback.textContent = '';
             postFeedback.className = 'feedback';
 
             try {
-                const res = await fetch('/.netlify/functions/admin?action=save-post', {
+                const res = await fetch('/api/admin?action=save-post', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`
                     },
-                    body: JSON.stringify({ id, title, text, image })
+                    body: JSON.stringify({ id, title, text, content, image })
                 });
 
                 const data = await res.json();
@@ -1008,10 +1052,20 @@
 
             document.getElementById('post-id').value = post.id;
             document.getElementById('post-title').value = post.title;
-            document.getElementById('post-text').value = post.text;
+            document.getElementById('post-text').value = post.text || '';
+            quill.root.innerHTML = post.content || '';
+            
             const pathEl = document.getElementById('post-img-path');
             pathEl.textContent = `Aktuální: ${post.image}`;
-            pathEl.dataset.url = post.image;
+            pathEl.dataset.url = post.image || '';
+            
+            const previewEl = document.getElementById('post-img-preview');
+            if (post.image) {
+                previewEl.src = post.image;
+                previewEl.style.display = 'block';
+            } else {
+                previewEl.style.display = 'none';
+            }
 
             document.getElementById('modal-title').textContent = 'Upravit článek';
             postFeedback.textContent = '';
@@ -1022,7 +1076,7 @@
             if (!confirm('Opravdu chcete tento článek smazat?')) return;
 
             try {
-                const res = await fetch('/.netlify/functions/admin?action=delete-post', {
+                const res = await fetch('/api/admin?action=delete-post', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

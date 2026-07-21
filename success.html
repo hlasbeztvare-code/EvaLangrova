@@ -57,21 +57,14 @@
         const params = new URLSearchParams(window.location.search);
         const orderId = params.get('orderId');
         const method = params.get('method');
+        const payment = params.get('payment');
         
         const statusEl = document.getElementById('payment-status');
 
         if (method === 'transfer') {
             statusEl.innerHTML = "Zvolili jste platbu bankovním převodem.<br>Faktura s platebními údaji vám byla zaslána na e-mail.";
-        } else if (orderId) {
-            // Simulace návratu z Comgate brány po zaplacení
-            statusEl.innerHTML = "Platba kartou proběhla úspěšně.<br>Faktura vám byla zaslána na e-mail.";
-            
-            // Zavoláme webhook simulovaně, abychom otestovali odeslání PDF faktury v demu
-            fetch('/.netlify/functions/comgate-webhook', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'PAID', orderId: orderId })
-            }).then(() => console.log('Webhook triggered for demo.'));
+        } else if (payment === 'success' || orderId) {
+            statusEl.innerHTML = "Platba proběhla úspěšně.<br>Potvrzení a podrobnosti o objednávce vám byly zaslány na e-mail.";
         }
     </script>
 
@@ -107,7 +100,7 @@
             </div>
         </div>
         <div class="footer-copyright">
-            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="podpis.html" style="color: #8e8e9f; text-decoration: none;">Made with passion</a></p>
+            <p>© <span id="current-year">2026</span> FOTOFILTRY.CZ. VŠECHNA PRÁVA VYHRAZENA. | <a href="https://l-code-dynamics.com" target="_blank" style="color: #8e8e9f; text-decoration: none;">l-code-dynamics.com</a></p>
         </div>
     </footer>
 

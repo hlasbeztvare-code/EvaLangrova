@@ -21,6 +21,30 @@ body {
     visibility: visible;
 }
 
+/* ── PREMIUM SCROLLING ── */
+html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-amber) var(--sand-base);
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--sand-base);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-amber);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-dark);
+}
 
 /* ── 1. ATOMOVÁ LIKVIDACE SHOPTET UI ─────────────────────────────────────
    Agresivní multi-selector kill. Pokrývá Shoptet 3.x, 4.x i Edge šablony.
@@ -56,7 +80,6 @@ aside,
 .floating-cart-btn,
 .back-to-top,
 #back-to-top,
-.mobile-menu-toggle,
 .mobile-nav-overlay,
 .top-navigation,
 .header-top,
@@ -404,8 +427,9 @@ body,
 
 .premium-cta-btn:hover {
     background: #D68C3F !important;
-    transform: translateY(-2px) !important;
+    transform: translateY(-3px) scale(1.02) !important;
     color: #ffffff !important;
+    box-shadow: 0 12px 30px rgba(214, 140, 63, 0.25), 0 0 20px rgba(214, 140, 63, 0.15) !important;
 }
 
 /* ── 6. ASYMETRICKÝ SPLIT GRID ───────────────────────────────────────── */
@@ -452,24 +476,31 @@ body,
 
 /* ── 7. PREMIUM PRODUKT KARTA ─────────────────────────────────────────── */
 .premium-product-card {
-    background: #ffffff !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.5) 100%) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
     border-radius: 20px !important;
     padding: 22px !important;
     display: flex !important;
     flex-direction: column !important;
     text-decoration: none !important;
-    /* FIX: #111111 → #2b2b2b */
     color: #2b2b2b !important;
-    border: 1px solid rgba(209, 199, 181, 0.5) !important;
-    /* FIX: box-shadow byl rgba(0,0,0,0.04) — příliš temný. Nahrazen sandy stínem. */
-    box-shadow: 0 10px 30px rgba(209, 199, 181, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 
+        0 10px 30px rgba(209, 199, 181, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
     transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1),
         box-shadow .4s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .premium-product-card:hover {
     transform: translateY(-10px) !important;
-    box-shadow: 0 35px 80px rgba(138, 129, 176, 0.25) !important;
+    box-shadow: 
+        0 35px 80px rgba(138, 129, 176, 0.25),
+        0 0 30px rgba(214, 140, 63, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+    border-color: rgba(255, 255, 255, 1) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.7) 100%) !important;
 }
 
 .premium-product-card .img-wrap {
@@ -543,8 +574,8 @@ body,
     line-height: 2.2 !important;
     font-weight: 600 !important;
     letter-spacing: .06em !important;
-    /* FIX: #2b2b2b. Původně #2b2b2b ✓, ale jen explicitně na p */
-    color: #7a7060 !important;
+    /* FIX: changed to #2b2b2b for better readability */
+    color: #2b2b2b !important;
     text-transform: uppercase !important;
     margin: 0 0 22px !important;
 }
@@ -1971,26 +2002,3 @@ h4.lens-focus-visible,
     filter: blur(0) !important;
     transform: translateY(0) scale(1) !important;
 }\n
-/* --- 3-COLUMN CHECKOUT LAYOUT --- */
-.checkout-form-2col {
-    grid-template-columns: 1fr 1fr 400px !important;
-}
-
-.checkout-main {
-    display: contents !important; /* Unwrap the children into the parent grid */
-}
-
-@media (max-width: 1200px) {
-    .checkout-form-2col {
-        grid-template-columns: 1fr 1fr !important;
-    }
-    .checkout-sidebar {
-        grid-column: 1 / -1 !important; /* Span full width below */
-    }
-}
-
-@media (max-width: 800px) {
-    .checkout-form-2col {
-        grid-template-columns: 1fr !important;
-    }
-}

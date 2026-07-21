@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Počítadlo v hlavičce
         var totalItems = cart.reduce(function(acc, item) { return acc + item.quantity; }, 0);
         cartCounter.textContent = totalItems;
+        if(cartTrigger) cartTrigger.setAttribute('aria-label', `Nákupní košík, ${totalItems} položek`);
 
         if (cart.length === 0) {
             cartItemsContainer.innerHTML = '<p class="cart-empty-message">Košík je prázdný.</p>';
@@ -158,12 +159,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         window.location.href = 'checkout.html';
     });
-
-    // Load Stripe.js dynamically
-    const script = document.createElement('script');
-    script.src = "https://js.stripe.com/v3/";
-    script.async = true;
-    document.head.appendChild(script);
 
     // ── ZVÝRAZNĚNÍ POSLEDNÍHO SLOVA V NADPISECH ──
     const headingSelectors = 'h1, h2, .section-title, .product-name, .about-title, .contact-title, .stream-title';
@@ -236,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Zpracování produktů a blogů (pokud existují kontejnery)
     const journalGrid = document.getElementById('journal-grid');
     if (journalGrid) {
-        fetch('blog.json')
+        fetch('/api/blog')
             .then(res => res.json())
             .then(blogs => {
                 journalGrid.innerHTML = '';
@@ -246,13 +241,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     article.style.transitionDelay = `${(index % 2) * 0.2}s`;
                     article.innerHTML = `
                         <div class="journal-img-wrap">
-                            <img src="${blog.image}" alt="${blog.title}" class="journal-img">
+                            <a href="/journal" style="display:block;">
+                                <img src="${blog.image}" alt="${blog.title}" class="journal-img">
+                            </a>
                         </div>
                         <div class="journal-content">
                             <span class="journal-meta">${blog.date}</span>
                             <h3 class="journal-card-title">${blog.title}</h3>
                             <p class="journal-excerpt">${blog.text}</p>
-                            <a href="article.html?id=${blog.id}" class="read-more-link">Číst dále →</a>
+                            <a href="/journal" class="read-more-link">Číst dále →</a>
                         </div>
                     `;
                     journalGrid.appendChild(article);
@@ -340,15 +337,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /* ── 3.5 DYNAMICKÉ NAČÍTÁNÍ PRODUKTŮ A BLOGU Z DATABÁZE ── */
     function loadProductsData() {
-        fetch('/products.json')
+        fetch('/api/products')
             .then(function(res) { return res.json(); })
             .then(function(products) {
                 var urlParams = new URLSearchParams(window.location.search);
                 var productId = urlParams.get('id');
 
-                // Detail produktu (product.html)
-                if (window.location.pathname.includes('product.html')) {
-                    var detailContent = document.getElementById('product-detail-content');
+                // Detail produktu (product.html nebo /product)
+                var detailContent = document.getElementById('product-detail-content');
+                if (detailContent) {
                     var notFound = document.getElementById('product-not-found');
                     
                     var product = products.find(function(p) { return p.id === productId; });
@@ -500,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Odstraněn duplicitní loadBlogPosts(), protože je už na řádku 211 pro journal-grid.
 
     function loadContentData() {
-        fetch('/content.json')
+        fetch('/api/content')
             .then(function(res) { 
                 if(!res.ok) throw new Error('No content data');
                 return res.json(); 
@@ -518,6 +515,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         el.innerHTML = data[field];
                     }
                 });
+
+                // Cookie Banner Logic
+                if (!localStorage.getItem('cookie_consent')) {
+                    var cookieText = data['cookieText'] || 'Tento web používá k poskytování služeb a analýze návštěvnosti soubory cookie. Používáním tohoto webu s tím souhlasíte.';
+                    var cookieButton = data['cookieButton'] || 'Rozumím';
+                    var cookieLink = data['cookieLink'] || 'Zásady ochrany';
+                    
+                    var banner = document.createElement('div');
+                    banner.id = 'cookie-banner';
+                    banner.innerHTML = `
+                        <div id="cookie-text">${cookieText}</div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button id="cookie-accept">${cookieButton}</button>
+                            <a href="ochrana-soukromi.html" id="cookie-link" style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); text-decoration: none; padding: 10px;">${cookieLink}</a>
+                        </div>
+                    `;
+                    document.body.appendChild(banner);
+                    
+                    // Trigger reflow for transition
+                    void banner.offsetWidth;
+                    banner.classList.add('show');
+
+                    document.getElementById('cookie-accept').addEventListener('click', function() {
+                        localStorage.setItem('cookie_consent', 'true');
+                        banner.classList.remove('show');
+                        banner.classList.add('hide');
+                        setTimeout(() => banner.remove(), 600);
+                    });
+                }
             })
             .catch(function(err) {
                 console.log('Using default static content.', err);
@@ -691,10 +717,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         scrollTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            if (window.lenis) {
+                window.lenis.scrollTo(0, { duration: 1.2 });
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
         });
     }
 });
@@ -736,7 +766,11 @@ document.addEventListener('DOMContentLoaded', function() {
         lens.addEventListener('click', function() {
             const productsSection = document.getElementById('kolekce');
             if(productsSection) {
-                productsSection.scrollIntoView({ behavior: 'smooth' });
+                if (window.lenis) {
+                    window.lenis.scrollTo(productsSection, { offset: -50, duration: 1.2 });
+                } else {
+                    productsSection.scrollIntoView({ behavior: 'smooth' });
+                }
             }
         });
     }
@@ -774,4 +808,72 @@ document.addEventListener('DOMContentLoaded', function() {
             heading.style.transition = 'none';
         }
     });
+});
+
+/* --- MOBILE MENU TOGGLE --- */
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuTrigger = document.getElementById('mobile-menu-trigger');
+    const mainNav = document.getElementById('main-navigation');
+    
+    const iconHamburger = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>`;
+    const iconClose = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+    
+    if (mobileMenuTrigger && mainNav) {
+        mobileMenuTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            mainNav.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+            if (mainNav.classList.contains('active')) {
+                mobileMenuTrigger.innerHTML = iconClose;
+            } else {
+                mobileMenuTrigger.innerHTML = iconHamburger;
+            }
+        });
+        
+        // Close menu when clicking a link
+        const navLinks = mainNav.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mainNav.classList.remove('active');
+                document.body.classList.remove('menu-open');
+                mobileMenuTrigger.innerHTML = '&#9776;';
+            });
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (mainNav.classList.contains('active') && !mainNav.contains(e.target) && e.target !== mobileMenuTrigger) {
+                mainNav.classList.remove('active');
+                document.body.classList.remove('menu-open');
+                mobileMenuTrigger.innerHTML = '&#9776;';
+            }
+        });
+    }
+});
+
+/* --- LENIS SMOOTH SCROLL (DESKTOP ONLY) --- */
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+        const lenisScript = document.createElement('script');
+        lenisScript.src = "https://unpkg.com/@studio-freight/lenis@1.0.39/dist/lenis.min.js";
+        lenisScript.defer = true;
+        lenisScript.onload = () => {
+            window.lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+                direction: 'vertical',
+                gestureDirection: 'vertical',
+                smooth: true,
+                smoothTouch: false,
+            });
+
+            function raf(time) {
+                window.lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+
+            requestAnimationFrame(raf);
+        };
+        document.head.appendChild(lenisScript);
+    }
 });
