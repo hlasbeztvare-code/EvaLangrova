@@ -1,5 +1,13 @@
 export async function onRequest(context) {
+  // Inject Comgate environment configuration into context.env if missing
+  if (context.env) {
+    context.env.COMGATE_MERCHANT_ID = context.env.COMGATE_MERCHANT_ID || 'G1058563';
+    context.env.COMGATE_SECRET = context.env.COMGATE_SECRET || 'QoQ2kHqKGO9eulQgl6Owy15FtzfpFY6O';
+    context.env.COMGATE_TEST = context.env.COMGATE_TEST !== undefined ? context.env.COMGATE_TEST : 'true';
+  }
+
   const url = new URL(context.request.url);
+
   const hostname = url.hostname;
 
   // Seznam aliasových domén k přesměrování

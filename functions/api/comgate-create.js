@@ -15,6 +15,8 @@ export async function onRequestPost(context) {
             );
         }
 
+
+
         const body = await request.json();
         
         const customer = JSON.stringify(body.customer || {});
