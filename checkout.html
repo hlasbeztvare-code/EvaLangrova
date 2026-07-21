@@ -347,39 +347,51 @@
 
         // Zásilkovna Widget setup
         const packetaOptions = { valueFormat: "Odkaz na pobočku: id" };
-        document.getElementById('packeta-widget-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            if(typeof Packeta === 'undefined') {
-                alert("Zásilkovna widget se ještě načítá. Zkuste to za chvíli.");
-                return;
-            }
-            Packeta.Widget.pick(packetaApiKey, function(point) {
-                if (point) {
-                    document.getElementById('zasilkovna-id').value = point.id;
-                    document.getElementById('zasilkovna-selected').innerHTML = `<strong>Vybráno:</strong> ${point.name}, ${point.city}`;
-                    document.getElementById('zasilkovna-error').style.display = 'none';
+        const packetaBtn = document.getElementById('packeta-widget-btn');
+        if (packetaBtn) {
+            packetaBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if(typeof Packeta === 'undefined') {
+                    alert("Zásilkovna widget se ještě načítá. Zkuste to za chvíli.");
+                    return;
                 }
-            }, packetaOptions);
-        });
+                Packeta.Widget.pick(packetaApiKey, function(point) {
+                    if (point) {
+                        const zId = document.getElementById('zasilkovna-id');
+                        if (zId) zId.value = point.id;
+                        const zSel = document.getElementById('zasilkovna-selected');
+                        if (zSel) zSel.innerHTML = `<strong>Vybráno:</strong> ${point.name}, ${point.city}`;
+                        const zErr = document.getElementById('zasilkovna-error');
+                        if (zErr) zErr.style.display = 'none';
+                    }
+                }, packetaOptions);
+            });
+        }
 
         // Toggle account password block
         const createAccountCb = document.getElementById('create-account-cb');
-        const accountPasswordBlock = document.getElementById('account-password-block');
-        const accountPasswordInput = document.getElementById('account-password');
-        
-        createAccountCb.addEventListener('change', function() {
-            accountPasswordBlock.style.display = this.checked ? 'block' : 'none';
-            accountPasswordInput.required = this.checked;
-        });
+        if (createAccountCb) {
+            const accountPasswordBlock = document.getElementById('account-password-block');
+            const accountPasswordInput = document.getElementById('account-password');
+            createAccountCb.addEventListener('change', function() {
+                if (accountPasswordBlock) accountPasswordBlock.style.display = this.checked ? 'block' : 'none';
+                if (accountPasswordInput) accountPasswordInput.required = this.checked;
+            });
+        }
 
         // Toggle different shipping address
         const diffShippingCheckbox = document.getElementById('different-shipping');
-        const shippingBlock = document.getElementById('shipping-address-block');
-        diffShippingCheckbox.addEventListener('change', function() {
-            shippingBlock.style.display = this.checked ? 'block' : 'none';
-            const requiredFields = ['shipping-street', 'shipping-city', 'shipping-zip'];
-            requiredFields.forEach(id => document.getElementById(id).required = this.checked);
-        });
+        if (diffShippingCheckbox) {
+            const shippingBlock = document.getElementById('shipping-address-block');
+            diffShippingCheckbox.addEventListener('change', function() {
+                if (shippingBlock) shippingBlock.style.display = this.checked ? 'block' : 'none';
+                const requiredFields = ['shipping-street', 'shipping-city', 'shipping-zip'];
+                requiredFields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.required = this.checked;
+                });
+            });
+        }
 
         // Listen for radio changes
         document.querySelectorAll('input[type="radio"]').forEach(radio => {
@@ -397,36 +409,37 @@
                     indicator.classList.add('active');
                 }
             });
-            document.getElementById(`step-${stepNum}`).classList.add('active');
+            const targetStep = document.getElementById(`step-${stepNum}`);
+            if (targetStep) targetStep.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function nextStep(stepNum) {
             // Validate step 1
             if (stepNum === 2) {
-                const step1Inputs = document.getElementById('step-1').querySelectorAll('input[required]');
-                let isValid = true;
-                step1Inputs.forEach(input => {
-                    if (!input.reportValidity()) {
-                        isValid = false;
-                    }
-                });
-                if (!isValid) return;
+                const step1 = document.getElementById('step-1');
+                if (step1) {
+                    const step1Inputs = step1.querySelectorAll('input[required]');
+                    let isValid = true;
+                    step1Inputs.forEach(input => {
+                        if (!input.reportValidity()) {
+                            isValid = false;
+                        }
+                    });
+                    if (!isValid) return;
+                }
             }
 
             // Validate step 2
             if (stepNum === 3) {
-                const shippingMethod = document.querySelector('input[name="shipping"]:checked').value;
+                const shippingRadio = document.querySelector('input[name="shipping"]:checked');
+                const shippingMethod = shippingRadio ? shippingRadio.value : '';
                 if (shippingMethod === 'zasilkovna') {
-                    if (!document.getElementById('zasilkovna-id').value) {
-                        document.getElementById('zasilkovna-error').style.display = 'block';
+                    const zId = document.getElementById('zasilkovna-id');
+                    if (zId && !zId.value) {
+                        const zErr = document.getElementById('zasilkovna-error');
+                        if (zErr) zErr.style.display = 'block';
                         return;
-                    }
-                } else if (shippingMethod === 'alzabox') {
-                    if (!document.getElementById('alzabox-id').value) {
-                        // Placeholder validation pro AlzaBox
-                        // Zde by normálně vyběhl error, ale protože jde o placeholder, projdeme.
-                        console.log('AlzaBox ID chybí (placeholder mode).');
                     }
                 }
             }
@@ -439,53 +452,61 @@
         }
 
         // Form submission
-        document.getElementById('checkout-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submit-btn');
-            const feedback = document.getElementById('checkout-feedback');
-            
-            if (checkoutCart.length === 0) {
-                feedback.textContent = 'Košík je prázdný.';
-                return;
-            }
+        const checkoutForm = document.getElementById('checkout-form');
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitBtn = document.getElementById('submit-btn');
+                const feedback = document.getElementById('checkout-feedback');
+                
+                if (checkoutCart.length === 0) {
+                    if (feedback) feedback.textContent = 'Košík je prázdný.';
+                    return;
+                }
 
-            feedback.textContent = '';
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Zpracovávám...';
+                if (feedback) feedback.textContent = '';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Zpracovávám...';
+                }
 
-            const diffShipping = document.getElementById('different-shipping').checked;
-            const createAccount = document.getElementById('create-account-cb').checked;
-            const shippingMethod = document.querySelector('input[name="shipping"]:checked').value;
+                const diffShipping = document.getElementById('different-shipping') ? document.getElementById('different-shipping').checked : false;
+                const createAccount = document.getElementById('create-account-cb') ? document.getElementById('create-account-cb').checked : false;
+                const shippingRadio = document.querySelector('input[name="shipping"]:checked');
+                const shippingMethod = shippingRadio ? shippingRadio.value : 'zasilkovna';
+                const paymentRadio = document.querySelector('input[name="payment"]:checked');
+                const paymentMethod = paymentRadio ? paymentRadio.value : 'card';
 
-            const currentSubtotal = checkoutCart.reduce((acc, item) => acc + (parseItemPrice(item) * item.quantity), 0);
+                const currentSubtotal = checkoutCart.reduce((acc, item) => acc + (parseItemPrice(item) * item.quantity), 0);
 
-            const orderData = {
-                customer: {
-                    name: document.getElementById('billing-name').value,
-                    email: document.getElementById('billing-email').value,
-                    phone: document.getElementById('billing-phone').value,
-                    createAccount: createAccount,
-                    password: createAccount ? document.getElementById('account-password').value : null
-                },
-                billing: {
-                    street: document.getElementById('billing-street').value,
-                    city: document.getElementById('billing-city').value,
-                    zip: document.getElementById('billing-zip').value
-                },
-                shipping: diffShipping ? {
-                    street: document.getElementById('shipping-street').value,
-                    city: document.getElementById('shipping-city').value,
-                    zip: document.getElementById('shipping-zip').value
-                } : null,
-                shippingMethod,
-                zasilkovnaId: document.getElementById('zasilkovna-id').value,
-                alzaboxId: document.getElementById('alzabox-id').value,
-                paymentMethod: document.querySelector('input[name="payment"]:checked').value,
-                items: checkoutCart,
-                total: currentSubtotal,
-                shippingCost
-            };
+                const orderData = {
+                    customer: {
+                        name: document.getElementById('billing-name')?.value || '',
+                        email: document.getElementById('billing-email')?.value || '',
+                        phone: document.getElementById('billing-phone')?.value || '',
+                        createAccount: createAccount,
+                        password: createAccount ? (document.getElementById('account-password')?.value || null) : null
+                    },
+                    billing: {
+                        street: document.getElementById('billing-street')?.value || '',
+                        city: document.getElementById('billing-city')?.value || '',
+                        zip: document.getElementById('billing-zip')?.value || ''
+                    },
+                    shipping: diffShipping ? {
+                        street: document.getElementById('shipping-street')?.value || '',
+                        city: document.getElementById('shipping-city')?.value || '',
+                        zip: document.getElementById('shipping-zip')?.value || ''
+                    } : null,
+                    shippingMethod,
+                    zasilkovnaId: document.getElementById('zasilkovna-id')?.value || '',
+                    alzaboxId: document.getElementById('alzabox-id')?.value || '',
+                    paymentMethod,
+                    items: checkoutCart,
+                    total: currentSubtotal,
+                    shippingCost
+                };
+
 
 
             try {
