@@ -1,8 +1,20 @@
 import { createComgatePayment } from './_comgate.js';
 
 export async function onRequestPost(context) {
-    const { request, env } = context;
     try {
+        const request = context.request;
+        const env = context.env || {};
+        
+        const merchantId = env.COMGATE_MERCHANT_ID;
+        const secret = env.COMGATE_SECRET;
+
+        if (!merchantId || !secret) {
+            return Response.json(
+                { error: 'Chybí nastavení Comgate merchant ID nebo secret v Cloudflare Environment Variables.' },
+                { status: 400 }
+            );
+        }
+
         const body = await request.json();
         
         const customer = JSON.stringify(body.customer || {});
@@ -29,8 +41,8 @@ export async function onRequestPost(context) {
         if (paymentMethod === 'transfer') {
             return Response.json({ 
                 success: true, 
-                redirectUrl: '/success.html?orderId=' + orderId,
-                url: '/success.html?orderId=' + orderId,
+                redirectUrl: '/success.html?orderId=' + orderId + '&method=transfer',
+                url: '/success.html?orderId=' + orderId + '&method=transfer',
                 orderId 
             });
         }
@@ -62,7 +74,8 @@ export async function onRequestPost(context) {
 
     } catch (e) {
         console.error('Comgate Create Error:', e);
-        return Response.json({ error: e.message || 'Chyba při vytváření platby' }, { status: 500 });
+        return Response.json({ error: e.message || 'Chyba při vytváření platby' }, { status: 400 });
     }
 }
+
 
