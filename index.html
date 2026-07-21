@@ -62,8 +62,8 @@
                 <h1 class="hero-title" id="content-heroTitle">Vidět svět<br><span class="accent-glow">jinak.</span></h1>
                 <p class="hero-subtitle" id="content-heroSubtitle">Prémiové optické filtry navržené pro tvůrce, kteří odmítají průměrnost. Dodejte svým snímkům filmovou atmosféru přímo na snímač.</p>
                 <div class="hero-buttons">
-                    <a href="#kolekce" class="cta-button primary-cta" id="cta-explore">Prohlédnout kolekce</a>
-                    <a href="#o-nas" class="cta-button secondary-cta" id="cta-about">Náš příběh</a>
+                    <a href="#kolekce" class="cta-button primary-cta" id="href-heroBtn1"><span id="content-heroBtn1">Prohlédnout kolekce</span></a>
+                    <a href="#o-nas" class="cta-button secondary-cta" id="href-heroBtn2"><span id="content-heroBtn2">Náš příběh</span></a>
                 </div>
             </div>
             
@@ -142,7 +142,7 @@
         <div class="section-container split-layout">
             <div class="about-visual">
                 <div class="story-image-container">
-                    <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=800&q=80" alt="Fotograf s naším filtrem" class="about-main-img" loading="lazy">
+                    <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=800&q=80" alt="Fotograf s naším filtrem" class="about-main-img" loading="lazy" id="src-aboutImage">
                 </div>
             </div>
             
@@ -180,22 +180,8 @@
                 <p class="section-subtitle">Co o našich filtrech říkají tvůrci</p>
             </div>
             
-            <div class="reviews-grid">
-                <div class="review-card glass-card">
-                    <div class="stars">★★★★★</div>
-                    <p class="review-text">"Konečně filtry, které neničí ostrost objektivu. Halo používám na každý videoklip, dodává neuvěřitelně snovou atmosféru."</p>
-                    <p class="review-author">— Jakub M., kameraman</p>
-                </div>
-                <div class="review-card glass-card">
-                    <div class="stars">★★★★★</div>
-                    <p class="review-text">"Fog filter je must-have pro noční street foto. Ty halace kolem pouličních lamp vypadají jako z filmu. Skvělá kvalita skla."</p>
-                    <p class="review-author">— Petra S., fotografka</p>
-                </div>
-                <div class="review-card glass-card">
-                    <div class="stars">★★★★★</div>
-                    <p class="review-text">"Rozdíl oproti levným filtrům z Číny je obrovský. Nehážou divné odlesky a obraz má krásný organický look."</p>
-                    <p class="review-author">— Tomáš L., režisér</p>
-                </div>
+            <div class="reviews-grid" id="reviews-grid">
+                <!-- Dynamicky načítané recenze -->
             </div>
         </div>
     </section>
@@ -270,7 +256,7 @@
             <div class="footer-brand">
                 <img src="images/logo.png" alt="fotofiltry.cz" class="brand-logo-img footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" style="max-height: 40px; width: auto; display: block; margin-bottom: 15px;">
                 <div class="f-logo-text" style="display: none;">foto<b>filtr</b>y.cz</div>
-                <p class="f-brand-tagline">Nekompromisní optická kvalita a jedinečný look pro moderní tvůrce.</p>
+                <p class="f-brand-tagline" id="content-footerTagline">Nekompromisní optická kvalita a jedinečný look pro moderní tvůrce.</p>
             </div>
             
             <div class="footer-links-grid">
@@ -289,8 +275,8 @@
                 </div>
                 <div class="footer-col">
                     <h3>Sledujte nás</h3>
-                    <a href="https://instagram.com/fotofiltrycz" target="_blank" aria-label="Instagram">Instagram</a>
-                    <a href="https://vimeo.com/fotofiltrycz" target="_blank" aria-label="Vimeo">Vimeo</a>
+                    <a href="https://instagram.com/fotofiltrycz" target="_blank" aria-label="Instagram" id="href-socialInsta">Instagram</a>
+                    <a href="https://vimeo.com/fotofiltrycz" target="_blank" aria-label="Vimeo" id="href-socialVimeo">Vimeo</a>
                     <a href="index.html#journal">Studio Journal</a>
                 </div>
             </div>

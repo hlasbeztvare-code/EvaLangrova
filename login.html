@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Přihlášení do Administrace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="custom-styles.css">
+    <style>
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background: var(--bg-surface);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .login-card h1 {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>Administrace</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="password">Heslo</label>
+                <input type="password" id="password" required placeholder="Zadejte přístupové heslo">
+            </div>
+            <button type="submit" class="btn">Přihlásit se</button>
+            <div id="feedback" class="feedback"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const feedback = document.getElementById('feedback');
+            
+            feedback.style.color = 'var(--text-muted)';
+            feedback.textContent = 'Ověřuji...';
+            
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
+
+                if (res.ok) {
+                    feedback.style.color = 'var(--success)';
+                    feedback.textContent = 'Přihlášení úspěšné, přesměrovávám...';
+                    setTimeout(() => {
+                        window.location.href = '/admin.html';
+                    }, 500);
+                } else {
+                    const data = await res.json();
+                    feedback.style.color = 'var(--danger)';
+                    feedback.textContent = data.error || 'Nesprávné heslo';
+                }
+            } catch (err) {
+                feedback.style.color = 'var(--danger)';
+                feedback.textContent = 'Chyba připojení k serveru.';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -509,7 +509,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 var fields = [
                     'heroTitle', 'heroSubtitle', 'productsTitle', 'productsSubtitle',
                     'aboutLabel', 'aboutTitle', 'aboutText', 'journalTitle', 'journalSubtitle',
-                    'contactTitle', 'contactDesc', 'contactAddress', 'contactEmail'
+                    'contactTitle', 'contactDesc', 'contactAddress', 'contactEmail',
+                    'heroBtn1', 'heroBtn2', 'contactPhone', 'footerTagline'
                 ];
                 
                 fields.forEach(function(field) {
@@ -518,6 +519,40 @@ document.addEventListener('DOMContentLoaded', function() {
                         el.innerHTML = data[field];
                     }
                 });
+
+                var hrefFields = ['heroBtn1', 'heroBtn2', 'socialInsta', 'socialVimeo'];
+                hrefFields.forEach(function(field) {
+                    var el = document.getElementById('href-' + field);
+                    if (el && data[field + 'Url']) {
+                        el.href = data[field + 'Url'];
+                    }
+                });
+
+                if (data['aboutImage']) {
+                    var imgEl = document.getElementById('src-aboutImage');
+                    if (imgEl) {
+                        imgEl.src = data['aboutImage'];
+                    }
+                }
+
+                // Reviews
+                if (data['reviews'] && Array.isArray(data['reviews'])) {
+                    var reviewsGrid = document.getElementById('reviews-grid');
+                    if (reviewsGrid) {
+                        reviewsGrid.innerHTML = '';
+                        data['reviews'].forEach(function(r) {
+                            var starsHtml = '';
+                            for (var i = 0; i < (parseInt(r.stars) || 5); i++) starsHtml += '★';
+                            reviewsGrid.innerHTML += `
+                                <div class="review-card glass-card">
+                                    <div class="stars">${starsHtml}</div>
+                                    <p class="review-text">"${r.text}"</p>
+                                    <p class="review-author">— ${r.author}</p>
+                                </div>
+                            `;
+                        });
+                    }
+                }
 
                 // Cookie Banner Logic
                 if (!localStorage.getItem('cookie_consent')) {

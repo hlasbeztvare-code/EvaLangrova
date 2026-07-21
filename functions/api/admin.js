@@ -114,5 +114,21 @@ export async function onRequest(context) {
         return Response.json({ success: true, imageUrl: body.fileData });
     }
 
+    if (request.method === 'GET' && action === 'get-orders') {
+        const { results } = await env.DB.prepare("SELECT * FROM orders ORDER BY created_at DESC").all();
+        return Response.json(results || []);
+    }
+
+    if (request.method === 'POST' && action === 'update-order-status') {
+        const body = await request.json();
+        if (!body.orderId || !body.status) {
+            return Response.json({ error: 'Chybí ID nebo stav' }, { status: 400 });
+        }
+        await env.DB.prepare("UPDATE orders SET status = ? WHERE order_id = ?")
+            .bind(body.status, body.orderId)
+            .run();
+        return Response.json({ success: true });
+    }
+
     return Response.json({ error: 'Neplatná akce' }, { status: 400 });
 }

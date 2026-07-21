@@ -5,7 +5,9 @@
   "main": "api/checkout.js",
   "dependencies": {
     "firebase-admin": "^14.1.0",
+    "jose": "^6.2.3",
     "nodemailer": "^9.0.3",
+    "pdf-lib": "^1.17.1",
     "pdfkit": "^0.19.1",
     "stripe": "^14.0.0"
   },
