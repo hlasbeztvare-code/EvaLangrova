@@ -41,6 +41,7 @@ CREATE TABLE orders (
     shipping_cost REAL,
     shipping_method TEXT,
     payment_method TEXT,
+    total REAL,
     status TEXT DEFAULT 'PENDING',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     paid_at DATETIME
