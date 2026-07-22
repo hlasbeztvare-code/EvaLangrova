@@ -25,7 +25,7 @@ export async function onRequest(context) {
   }
 
   // --- Zabezpečení Administrace (JWT) ---
-  const isAdminPage = url.pathname === '/admin.html' || url.pathname.startsWith('/admin/');
+  const isAdminPage = url.pathname === '/admin' || url.pathname === '/admin.html' || url.pathname.startsWith('/admin/');
   const isAdminApi = url.pathname.startsWith('/api/admin');
   
   if (isAdminPage || isAdminApi) {

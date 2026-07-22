@@ -157,7 +157,6 @@
 
         /* ── DASHBOARD CONTAINER ── */
         .dashboard {
-            display: none;
             width: 100%;
             max-width: 1100px;
             padding: 40px 20px;
@@ -473,7 +472,9 @@
 
         <div class="admin-tabs">
             <button class="tab-btn active" data-target="tab-orders">📦 Objednávky</button>
-            <button class="tab-btn" data-target="tab-content">✍️ Texty & Obsah</button>
+            <button class="tab-btn" data-target="tab-content">✍️ Texty & Obsah webu</button>
+            <button class="tab-btn" data-target="tab-about">🖼️ O nás / Obrázky</button>
+            <button class="tab-btn" data-target="tab-reviews">⭐ Recenze</button>
             <button class="tab-btn" data-target="tab-products">🛍️ Produkty</button>
             <button class="tab-btn" data-target="tab-blog">📝 Blog</button>
         </div>
@@ -511,17 +512,36 @@
                     <!-- Dynamically filled -->
                 </div>
                 
-                <hr style="border: 0; border-top: 1px solid var(--border); margin: 30px 0;">
-                <h3 style="margin-bottom: 15px;">Hodnocení (Recenze)</h3>
-                <div id="reviews-container" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
-                    <!-- Reviews list -->
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm" id="btn-add-review" style="margin-bottom: 20px; width: auto;">+ Přidat recenzi</button>
-                <br>
+
 
                 <button type="submit" class="btn">Uložit obsah webu a recenze</button>
                 <div id="content-feedback" class="feedback"></div>
             </form>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="tab-about" class="admin-section blog-section" style="margin-bottom: 40px;">
+            <h2 class="section-title">O nás / Obrázky</h2>
+            <div style="background: var(--bg-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                <p style="margin-bottom: 10px;">Zde můžete spravovat obrázek a texty pro sekci "O nás".</p>
+                <div id="about-image-dropzone" style="border: 2px dashed var(--border); border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; margin-bottom: 20px;">
+                    <p>📸 Přetáhněte sem obrázek pro O nás, nebo klikněte pro výběr.</p>
+                    <input type="file" id="about-image-input" style="display: none;" accept="image/*">
+                </div>
+                <img id="about-image-preview" src="" style="max-width: 100%; border-radius: 8px; display: none; margin-bottom: 20px;">
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section id="tab-reviews" class="admin-section blog-section" style="margin-bottom: 40px;">
+            <h2 class="section-title">⭐ Recenze zákazníků</h2>
+            <div id="reviews-container" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                <!-- Reviews list -->
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-review" style="margin-bottom: 20px; width: auto;">+ Přidat recenzi</button>
+            <br>
+            <button type="button" class="btn" id="btn-save-reviews">Uložit recenze</button>
+            <div id="reviews-feedback" class="feedback"></div>
         </section>
 
         <!-- Products Section -->
@@ -646,12 +666,26 @@
         });
 
         // Přihlášení
-        const adminSession = document.cookie.includes('admin_session=');
         document.addEventListener('DOMContentLoaded', () => {
-            showDashboard();
+            try {
+                showDashboard();
+            } catch (err) {
+                console.error("Initialization error:", err);
+            }
         });
 
-        function showDashboard() {
+        async function showDashboard() {
+            // Kontrola auth statusu
+            try {
+                const res = await fetch('/api/admin?action=status');
+                if (!res.ok) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+
             loadOrders();
             loadProducts();
             loadBlogPosts();
@@ -801,6 +835,46 @@
             }
         }
 
+        
+        // O nás Obrázek upload
+        document.getElementById('about-image-dropzone').addEventListener('click', () => {
+            document.getElementById('about-image-input').click();
+        });
+        document.getElementById('about-image-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async () => {
+                try {
+                    const res = await fetch('/api/admin?action=upload-image', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename: file.name, fileData: reader.result })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        const prev = document.getElementById('about-image-preview');
+                        prev.src = data.imageUrl;
+                        prev.style.display = 'block';
+                        
+                        // Save the about image to config
+                        await fetch('/api/admin?action=save-content', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ aboutImage: data.imageUrl })
+                        });
+                        alert('Obrázek pro sekci O nás byl úspěšně nahrán a uložen!');
+                    } else {
+                        alert(data.error || 'Chyba nahrávání');
+                    }
+                } catch (err) {
+                    alert('Chyba nahrávání obrázku');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
         // ── WEB CONTENT MANAGEMENT ──
         let currentWebContent = {};
         const contentLabels = {
@@ -949,6 +1023,34 @@
             renderReviews();
         };
 
+        
+        document.getElementById('btn-save-reviews').addEventListener('click', async () => {
+            const reviews = [];
+            const rBlocks = document.querySelectorAll('.review-block');
+            rBlocks.forEach(b => {
+                const name = b.querySelector('.r-name').value;
+                const date = b.querySelector('.r-date').value;
+                const text = b.querySelector('.r-text').value;
+                if(name && text) reviews.push({ name, date, text });
+            });
+
+            try {
+                const res = await fetch('/api/admin?action=save-content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reviews })
+                });
+                if (res.ok) {
+                    const fb = document.getElementById('reviews-feedback');
+                    fb.className = 'feedback success';
+                    fb.textContent = 'Recenze uloženy!';
+                    setTimeout(() => fb.textContent = '', 3000);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
         document.getElementById('content-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const feedback = document.getElementById('content-feedback');
@@ -979,7 +1081,6 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify(newContent)
                 });
@@ -1112,8 +1213,7 @@
                     const res = await fetch('/api/admin?action=upload-image', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${authToken}`
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             filename: file.name,
@@ -1156,7 +1256,6 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
                         id: productId,
@@ -1294,7 +1393,6 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${authToken}`
                         },
                         body: JSON.stringify({
                             filename: file.name,
@@ -1340,7 +1438,6 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify({ id, title, text, content, image })
                 });
@@ -1391,7 +1488,6 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify({ id })
                 });

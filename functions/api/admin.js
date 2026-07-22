@@ -17,10 +17,6 @@ export async function onRequest(context) {
         return Response.json({ error: 'Nesprávné heslo' }, { status: 401 });
     }
 
-    const authHeader = request.headers.get('Authorization') || '';
-    if (authHeader !== `Bearer ${expectedPassword}`) {
-        return Response.json({ error: 'Neautorizováno' }, { status: 403 });
-    }
 
     if (request.method === 'GET' && action === 'status') {
         return Response.json({ status: 'authenticated' });
