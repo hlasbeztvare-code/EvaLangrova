@@ -1,3 +1,5 @@
+import { verifyAdminPassword, hashPassword } from './_auth.js';
+
 export async function onRequest(context) {
     const { request, env } = context;
     if (request.method === 'OPTIONS') {
@@ -7,14 +9,31 @@ export async function onRequest(context) {
     const url = new URL(request.url);
     const action = url.searchParams.get('action');
 
-    const expectedPassword = env.ADMIN_PASSWORD || 'eva123';
-
     if (request.method === 'POST' && action === 'login') {
         const body = await request.json();
-        if (body.password === expectedPassword) {
-            return Response.json({ success: true, token: expectedPassword });
+        if (await verifyAdminPassword(body.password, env)) {
+            return Response.json({ success: true, token: body.password });
         }
         return Response.json({ error: 'Nesprávné heslo' }, { status: 401 });
+    }
+
+    if (request.method === 'POST' && action === 'change-password') {
+        const body = await request.json();
+        const { currentPassword, newPassword } = body;
+        if (!currentPassword || !newPassword) {
+            return Response.json({ error: 'Vyplňte současné i nové heslo' }, { status: 400 });
+        }
+        if (newPassword.length < 6) {
+            return Response.json({ error: 'Nové heslo musí mít alespoň 6 znaků' }, { status: 400 });
+        }
+        if (!(await verifyAdminPassword(currentPassword, env))) {
+            return Response.json({ error: 'Současné heslo není správně' }, { status: 401 });
+        }
+        const passwordHash = await hashPassword(newPassword);
+        await env.DB.prepare("INSERT INTO config (id, data) VALUES ('adminAuth', ?1) ON CONFLICT(id) DO UPDATE SET data = ?1")
+            .bind(JSON.stringify({ passwordHash }))
+            .run();
+        return Response.json({ success: true });
     }
 
 

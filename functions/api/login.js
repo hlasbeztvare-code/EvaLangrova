@@ -1,13 +1,13 @@
 import { SignJWT } from 'jose';
+import { verifyAdminPassword } from './_auth.js';
 
 export async function onRequestPost(context) {
     const { request, env } = context;
 
     try {
         const body = await request.json();
-        const expectedPassword = env.ADMIN_PASSWORD || 'eva123';
 
-        if (body.password !== expectedPassword) {
+        if (!(await verifyAdminPassword(body.password, env))) {
             return Response.json({ error: 'Nesprávné heslo' }, { status: 401 });
         }
 

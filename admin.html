@@ -478,6 +478,8 @@
             <button class="tab-btn" data-target="tab-reviews">⭐ Recenze</button>
             <button class="tab-btn" data-target="tab-products">🛍️ Produkty</button>
             <button class="tab-btn" data-target="tab-blog">📝 Blog</button>
+            <button class="tab-btn" data-target="tab-legal">📄 Právní stránky</button>
+            <button class="tab-btn" data-target="tab-settings">🔒 Nastavení</button>
         </div>
 
         <!-- Orders Section -->
@@ -588,6 +590,48 @@
             </h2>
             <div id="blog-list-container" class="blog-list">
                 <!-- Dynamically filled with posts -->
+            </div>
+        </section>
+
+        <!-- Legal pages section -->
+        <section id="tab-legal" class="admin-section">
+            <h2 class="section-title">Právní stránky</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Texty, které se zobrazí na veřejných stránkách „Obchodní podmínky“ a „Ochrana soukromí“. Po úpravě nezapomeňte kliknout na tlačítko Uložit u příslušného textu.</p>
+
+            <div style="background: var(--bg-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 24px;">
+                <h3 style="margin: 0 0 12px;">Obchodní podmínky</h3>
+                <div id="quill-legal-terms" class="admin-quill" style="background:#fff; color:#111; border-radius:4px; overflow:hidden; height: 320px;"></div>
+                <button type="button" class="btn" id="btn-save-legal-terms" style="margin-top: 14px; width: auto;">Uložit obchodní podmínky</button>
+                <div id="legal-terms-feedback" class="feedback"></div>
+            </div>
+
+            <div style="background: var(--bg-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                <h3 style="margin: 0 0 12px;">Ochrana soukromí (GDPR)</h3>
+                <div id="quill-legal-gdpr" class="admin-quill" style="background:#fff; color:#111; border-radius:4px; overflow:hidden; height: 320px;"></div>
+                <button type="button" class="btn" id="btn-save-legal-gdpr" style="margin-top: 14px; width: auto;">Uložit ochranu soukromí</button>
+                <div id="legal-gdpr-feedback" class="feedback"></div>
+            </div>
+        </section>
+
+        <!-- Settings section -->
+        <section id="tab-settings" class="admin-section">
+            <h2 class="section-title">Nastavení</h2>
+            <div style="background: var(--bg-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border); max-width: 420px;">
+                <h3 style="margin: 0 0 12px;">Změna hesla do administrace</h3>
+                <div class="form-group">
+                    <label>Současné heslo</label>
+                    <input type="password" id="current-password">
+                </div>
+                <div class="form-group">
+                    <label>Nové heslo (alespoň 6 znaků)</label>
+                    <input type="password" id="new-password">
+                </div>
+                <div class="form-group">
+                    <label>Nové heslo znovu</label>
+                    <input type="password" id="new-password-confirm">
+                </div>
+                <button type="button" class="btn" id="btn-change-password">Změnit heslo</button>
+                <div id="password-feedback" class="feedback"></div>
             </div>
         </section>
     </div>
@@ -719,7 +763,123 @@
             loadProducts();
             loadBlogPosts();
             loadWebContent();
+            loadLegalPages();
         }
+
+        // ── LEGAL PAGES (Obchodní podmínky, GDPR) ──
+        let legalTermsQuill, legalGdprQuill;
+
+        // Dokud Eva text neuloží poprvé, natáhneme jako výchozí obsah aktuální
+        // statický text ze stránky (spojíme dva sloupce do jednoho plynulého textu).
+        async function fetchStaticLegalSeed(pagePath) {
+            try {
+                const res = await fetch(pagePath);
+                const html = await res.text();
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const fallback = doc.getElementById('legal-content-fallback');
+                if (!fallback) return '';
+                return [...fallback.querySelectorAll('.legal-col')]
+                    .map(col => col.innerHTML)
+                    .join('') || fallback.innerHTML;
+            } catch (err) {
+                return '';
+            }
+        }
+
+        async function loadLegalPages() {
+            try {
+                const res = await fetch('/api/content');
+                const data = await res.json();
+
+                legalTermsQuill = new Quill('#quill-legal-terms', {
+                    theme: 'snow',
+                    modules: { toolbar: [['bold', 'italic'], [{ 'header': [2, 3, false] }], [{ 'list': 'bullet' }], ['clean']] }
+                });
+                legalGdprQuill = new Quill('#quill-legal-gdpr', {
+                    theme: 'snow',
+                    modules: { toolbar: [['bold', 'italic'], [{ 'header': [2, 3, false] }], [{ 'list': 'bullet' }], ['clean']] }
+                });
+
+                legalTermsQuill.root.innerHTML = data.legalTermsHtml || await fetchStaticLegalSeed('/obchodni-podminky.html');
+                legalGdprQuill.root.innerHTML = data.legalGdprHtml || await fetchStaticLegalSeed('/ochrana-soukromi.html');
+            } catch (err) {
+                console.error('Error loading legal pages:', err);
+            }
+        }
+
+        async function saveLegalField(key, quill, feedbackId) {
+            const feedback = document.getElementById(feedbackId);
+            feedback.textContent = 'Ukládám...';
+            feedback.className = 'feedback';
+            try {
+                const res = await fetch('/api/admin?action=save-content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ [key]: DOMPurify.sanitize(quill.root.innerHTML) })
+                });
+                if (res.ok) {
+                    feedback.className = 'feedback success';
+                    feedback.textContent = 'Uloženo!';
+                } else {
+                    feedback.textContent = 'Uložení selhalo';
+                }
+            } catch (err) {
+                feedback.textContent = 'Chyba serveru';
+            }
+        }
+
+        document.getElementById('btn-save-legal-terms').addEventListener('click', () => {
+            saveLegalField('legalTermsHtml', legalTermsQuill, 'legal-terms-feedback');
+        });
+        document.getElementById('btn-save-legal-gdpr').addEventListener('click', () => {
+            saveLegalField('legalGdprHtml', legalGdprQuill, 'legal-gdpr-feedback');
+        });
+
+        // ── SETTINGS: change admin password ──
+        document.getElementById('btn-change-password').addEventListener('click', async () => {
+            const feedback = document.getElementById('password-feedback');
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const newPasswordConfirm = document.getElementById('new-password-confirm').value;
+
+            if (!currentPassword || !newPassword) {
+                feedback.className = 'feedback';
+                feedback.textContent = 'Vyplňte současné i nové heslo.';
+                return;
+            }
+            if (newPassword !== newPasswordConfirm) {
+                feedback.className = 'feedback';
+                feedback.textContent = 'Nová hesla se neshodují.';
+                return;
+            }
+            if (newPassword.length < 6) {
+                feedback.className = 'feedback';
+                feedback.textContent = 'Nové heslo musí mít alespoň 6 znaků.';
+                return;
+            }
+
+            feedback.className = 'feedback';
+            feedback.textContent = 'Ukládám...';
+            try {
+                const res = await fetch('/api/admin?action=change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    feedback.className = 'feedback success';
+                    feedback.textContent = 'Heslo bylo změněno.';
+                    document.getElementById('current-password').value = '';
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('new-password-confirm').value = '';
+                } else {
+                    feedback.textContent = data.error || 'Změna hesla selhala';
+                }
+            } catch (err) {
+                feedback.textContent = 'Chyba serveru';
+            }
+        });
 
         // ── INQUIRIES MANAGEMENT ──
         async function loadInquiries() {
@@ -1010,11 +1170,32 @@
             }
         ];
 
+        // Pole, kde web ukazuje jedno zvýrazněné slovo/frázi barvou tlačítek —
+        // místo psaní HTML tagů si Eva prostě označí text a klikne na "barva".
+        const RICH_HEADING_FIELDS = ['heroTitle', 'productsTitle', 'aboutTitle', 'journalTitle', 'contactTitle'];
+        // Delší texty, kde může chtít tučné písmo / odstavce.
+        const RICH_PROSE_FIELDS = ['aboutText', 'cookieText'];
+        const contentQuillEditors = {};
+
         function buildContentField(key, value) {
             const div = document.createElement('div');
             div.className = 'form-group';
 
-            if (key.includes('Text') || key.includes('Desc')) {
+            if (RICH_HEADING_FIELDS.includes(key)) {
+                const hint = key === 'heroTitle'
+                    ? 'Označte text myší a klikněte na barevný čtvereček pro zvýraznění. Shift+Enter zalomí řádek.'
+                    : 'Označte text myší a klikněte na barevný čtvereček pro zvýraznění stejnou barvou jako tlačítka.';
+                div.innerHTML = `
+                    <label>${contentLabels[key]}</label>
+                    <div id="quill-content-${key}" class="admin-quill" style="background:#fff; color:#111; border-radius:4px; overflow:hidden; height: 110px;"></div>
+                    <p style="color: var(--text-muted); font-size: 0.78rem; margin: 4px 0 0;">${hint}</p>
+                `;
+            } else if (RICH_PROSE_FIELDS.includes(key)) {
+                div.innerHTML = `
+                    <label>${contentLabels[key]}</label>
+                    <div id="quill-content-${key}" class="admin-quill" style="background:#fff; color:#111; border-radius:4px; overflow:hidden; height: 160px;"></div>
+                `;
+            } else if (key.includes('Text') || key.includes('Desc')) {
                 div.innerHTML = `
                     <label>${contentLabels[key]}</label>
                     <textarea id="content-input-${key}" rows="4">${value}</textarea>
@@ -1072,6 +1253,23 @@
                     container.appendChild(groupBox);
                 });
 
+                // Quill instance musí vznikat až PO vložení do stránky (potřebuje živý DOM element)
+                [...RICH_HEADING_FIELDS, ...RICH_PROSE_FIELDS].forEach(key => {
+                    const el = document.getElementById(`quill-content-${key}`);
+                    if (!el) return; // pole se v žádné skupině nevyskytuje
+                    const isHeading = RICH_HEADING_FIELDS.includes(key);
+                    const editor = new Quill(el, {
+                        theme: 'snow',
+                        modules: {
+                            toolbar: isHeading
+                                ? [['bold'], [{ 'color': ['#D68C3F'] }], ['clean']]
+                                : [['bold', 'italic'], [{ 'list': 'bullet' }], ['clean']]
+                        }
+                    });
+                    editor.root.innerHTML = currentWebContent[key] || '';
+                    contentQuillEditors[key] = editor;
+                });
+
                 Object.keys(contentLabels).forEach(key => {
                     if (key.includes('Image')) {
                         const fileInput = document.getElementById(`content-file-${key}`);
@@ -1089,7 +1287,7 @@
                                     const res = await fetch('/api/admin?action=upload-image', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ imageBase64: reader.result, fileName: file.name })
+                                        body: JSON.stringify({ filename: file.name, fileData: reader.result })
                                     });
                                     const data = await res.json();
                                     if (data.success) {
@@ -1194,6 +1392,10 @@
             
             const newContent = {};
             Object.keys(contentLabels).forEach(key => {
+                if (contentQuillEditors[key]) {
+                    newContent[key] = DOMPurify.sanitize(contentQuillEditors[key].root.innerHTML);
+                    return;
+                }
                 const input = document.getElementById(`content-input-${key}`);
                 if (input) newContent[key] = input.value;
             });
@@ -1234,6 +1436,62 @@
         });
 
         // ── PRODUCTS MANAGEMENT ──
+        // Detailní popis produktu je na webu vždy stejná dvousloupcová šablona.
+        // Eva edituje jen text obou sloupců (přes Quill), HTML kolem si skládá kód sám.
+        function parseProductDescriptionColumns(html) {
+            const src = html || '';
+            const left = src.match(/<div class="desc-col-left">([\s\S]*?)<\/div>/);
+            const right = src.match(/<div class="desc-col-right">([\s\S]*?)<\/div>/);
+            if (left || right) {
+                return { col1: (left ? left[1] : '').trim(), col2: (right ? right[1] : '').trim() };
+            }
+            // Starší/jiný formát popisu — dáme celý obsah do prvního sloupce, ať se nic neztratí.
+            return { col1: src.trim(), col2: '' };
+        }
+
+        function buildProductDescriptionHtml(col1, col2) {
+            return `
+    <div>
+        <div class="product-detail-grid">
+            <div style="grid-column: 1 / -1; margin-bottom: -20px;">
+                <h4><span style="color: var(--color-accent)">Detailní</span> popis produktu</h4>
+            </div>
+            <div class="desc-col-left">
+                ${col1}
+            </div>
+            <div class="desc-col-right">
+                ${col2}
+            </div>
+        </div>
+    </div>
+    `;
+        }
+
+        const productQuillEditors = {}; // { [productId]: { desc1, desc2 } }
+        const productGalleries = {};     // { [productId]: string[] (URL fotek) }
+
+        function renderGallery(productId) {
+            const wrap = document.getElementById(`gallery-${productId}`);
+            if (!wrap) return;
+            const urls = productGalleries[productId] || [];
+            wrap.innerHTML = urls.map((url, i) => `
+                <div style="position:relative; width:70px; height:70px;">
+                    <img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
+                    <button type="button" class="gallery-remove-btn" data-product="${productId}" data-index="${i}"
+                        style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; border:none; background:#c0392b; color:#fff; cursor:pointer; font-size:12px; line-height:20px; padding:0;">×</button>
+                </div>
+            `).join('') || '<p style="color: var(--text-muted); font-size: 0.82rem; margin:0;">Zatím žádné fotky v galerii.</p>';
+
+            wrap.querySelectorAll('.gallery-remove-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const pid = btn.dataset.product;
+                    const idx = Number(btn.dataset.index);
+                    productGalleries[pid].splice(idx, 1);
+                    renderGallery(pid);
+                });
+            });
+        }
+
         async function loadProducts() {
             try {
                 const res = await fetch('/api/products');
@@ -1283,8 +1541,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Detailní popis (Stránka produktu)</label>
-                            <textarea id="desc-${p.id}" rows="4">${p.description || ''}</textarea>
+                            <label>Detailní popis (Stránka produktu) — sloupec 1</label>
+                            <div id="quill-desc1-${p.id}" class="admin-quill" style="background:#fff; color:#111; border-radius:4px; overflow:hidden; height: 160px;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Detailní popis (Stránka produktu) — sloupec 2</label>
+                            <div id="quill-desc2-${p.id}" class="admin-quill" style="background:#fff; color:#111; border-radius:4px; overflow:hidden; height: 160px;"></div>
                         </div>
 
                         <div class="form-group">
@@ -1293,8 +1555,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Fotky galerie (URL, oddělené čárkou)</label>
-                            <textarea id="images-${p.id}" rows="2">${(p.images || []).join(', ')}</textarea>
+                            <label>Fotky galerie</label>
+                            <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0 0 8px;">Fotky, které se zobrazí v galerii na stránce produktu. Přidávejte je nahráním, žádné odkazy nevkládejte.</p>
+                            <div id="gallery-${p.id}" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;"></div>
+                            <input type="file" id="gallery-file-${p.id}" accept="image/*" multiple style="display:none">
+                            <button type="button" class="btn btn-secondary btn-sm" style="width:auto;" onclick="document.getElementById('gallery-file-${p.id}').click()">+ Přidat fotky do galerie</button>
                         </div>
 
                         <button class="btn" onclick="updateProduct('${p.id}')">💾 Uložit produkt</button>
@@ -1308,6 +1573,43 @@
                     setupImageUpload(p.id);
                     card.querySelector('.btn-delete-product').addEventListener('click', (e) => {
                         deleteProduct(e.target.dataset.id, e.target.dataset.name);
+                    });
+
+                    // Quill editory pro oba sloupce detailního popisu (žádné HTML na očích)
+                    const { col1, col2 } = parseProductDescriptionColumns(p.description);
+                    const toolbar = [['bold', 'italic'], [{ 'color': ['#D68C3F'] }], ['clean']];
+                    const desc1 = new Quill(`#quill-desc1-${p.id}`, { theme: 'snow', modules: { toolbar } });
+                    const desc2 = new Quill(`#quill-desc2-${p.id}`, { theme: 'snow', modules: { toolbar } });
+                    desc1.root.innerHTML = col1;
+                    desc2.root.innerHTML = col2;
+                    productQuillEditors[p.id] = { desc1, desc2 };
+
+                    // Galerie fotek — jen nahrávání, žádné URL
+                    productGalleries[p.id] = [...(p.images || [])];
+                    renderGallery(p.id);
+                    document.getElementById(`gallery-file-${p.id}`).addEventListener('change', (e) => {
+                        [...e.target.files].forEach(file => {
+                            const reader = new FileReader();
+                            reader.onload = async () => {
+                                try {
+                                    const res = await fetch('/api/admin?action=upload-image', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ filename: file.name, fileData: reader.result })
+                                    });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                        productGalleries[p.id].push(data.imageUrl);
+                                        renderGallery(p.id);
+                                    } else {
+                                        alert(data.error || 'Nahrávání fotky selhalo');
+                                    }
+                                } catch (err) {
+                                    alert('Chyba nahrávání fotky');
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        });
                     });
                 });
             } catch (err) {
@@ -1383,9 +1685,13 @@
             const price = document.getElementById(`price-${productId}`).value;
             const inStock = document.getElementById(`stock-${productId}`).checked;
             const shortDescription = document.getElementById(`shortDesc-${productId}`).value;
-            const description = document.getElementById(`desc-${productId}`).value;
+            const { desc1, desc2 } = productQuillEditors[productId];
+            const description = buildProductDescriptionHtml(
+                DOMPurify.sanitize(desc1.root.innerHTML),
+                DOMPurify.sanitize(desc2.root.innerHTML)
+            );
             const variants = document.getElementById(`variants-${productId}`).value.split(',').map(v => v.trim()).filter(Boolean);
-            const images = document.getElementById(`images-${productId}`).value.split(',').map(v => v.trim()).filter(Boolean);
+            const images = productGalleries[productId] || [];
             
             const preview = document.getElementById(`preview-img-${productId}`);
             const image = preview.dataset.uploadedUrl;
