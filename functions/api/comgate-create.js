@@ -1,69 +1,42 @@
-import { connect } from 'cloudflare:sockets';
+const COMGATE_CREATE_URL = 'https://payments.comgate.cz/v1.0/create';
 
 /**
- * Volá Comgate API přes přímý TCP/TLS socket (IPv4).
- * Cloudflare Workers fetch() jde přes Cloudflare CDN, která přidává
- * CF-Connecting-IP s naší IPv6 adresou → Comgate blokuje.
- * Přímý socket obejde CDN vrstvu a připojí se přes IPv4.
+ * Volá Comgate API.
+ *
+ * Comgate merchant účet má zapnuté omezení přístupu podle IP adresy.
+ * Cloudflare Workers/Pages nemají static outbound IP (běží z tisíců IP
+ * adres po celém světě) — přímé volání proto Comgate odmítá chybou 1400
+ * "Access from unauthorized location". Dřívější pokus obejít to přímým
+ * TCP socketem taky nefunguje — Cloudflare sama takové spojení na
+ * HTTPS porty blokuje na úrovni platformy.
+ *
+ * Řešení: malý relay server (VPS se statickou IP), který tenhle Worker
+ * zavolá běžným fetch() a on požadavek přepošle na Comgate ze své pevné
+ * IP. Aktivuje se nastavením env proměnných COMGATE_RELAY_URL a
+ * COMGATE_RELAY_SECRET — bez nich se (pro test/lokální vývoj) volá
+ * Comgate přímo, což ale v produkci skončí stejnou chybou 1400, dokud
+ * relay není zapnutý.
  */
-async function comgateViaSocket(paramsStr) {
-    const body = paramsStr;
-    const httpRequest = [
-        'POST /v1.0/create HTTP/1.1',
-        'Host: payments.comgate.cz',
-        'Content-Type: application/x-www-form-urlencoded',
-        `Content-Length: ${new TextEncoder().encode(body).length}`,
-        'Connection: close',
-        '',
-        body
-    ].join('\r\n');
-
-    // Přímé TCP/TLS spojení – DNS payments.comgate.cz → pouze IPv4 (172.66.130.x)
-    const socket = connect(
-        { hostname: 'payments.comgate.cz', port: 443 },
-        { secureTransport: 'on' }
-    );
-
-    const writer = socket.writable.getWriter();
-    await writer.write(new TextEncoder().encode(httpRequest));
-    await writer.close();
-
-    // Čtení odpovědi
-    const reader = socket.readable.getReader();
-    const chunks = [];
-    try {
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            chunks.push(value);
-        }
-    } catch (_) { /* spojení se uzavřelo */ }
-
-    // Sestavení odpovědi
-    const totalLen = chunks.reduce((n, c) => n + c.length, 0);
-    const all = new Uint8Array(totalLen);
-    let off = 0;
-    for (const c of chunks) { all.set(c, off); off += c.length; }
-
-    const responseText = new TextDecoder().decode(all);
-
-    // Oddělení HTTP hlaviček od těla
-    const sepIdx = responseText.indexOf('\r\n\r\n');
-    if (sepIdx === -1) throw new Error('Neplatná HTTP odpověď od Comgate');
-
-    let responseBody = responseText.slice(sepIdx + 4);
-
-    // Pokud je odpověď chunked transfer encoding, parsujeme chunk size
-    // (první řádek je hex délka chunku)
-    const firstLine = responseBody.split('\r\n')[0];
-    if (/^[0-9a-fA-F]+$/.test(firstLine.trim())) {
-        // chunked – extrahujeme skutečná data
-        const chunkData = responseBody.slice(firstLine.length + 2);
-        const endChunk = chunkData.indexOf('\r\n0');
-        responseBody = endChunk !== -1 ? chunkData.slice(0, endChunk) : chunkData;
+async function comgateViaFetch(paramsStr, env) {
+    if (env.COMGATE_RELAY_URL) {
+        const response = await fetch(env.COMGATE_RELAY_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'x-relay-secret': env.COMGATE_RELAY_SECRET || '',
+                'x-relay-path': '/v1.0/create'
+            },
+            body: paramsStr
+        });
+        return await response.text();
     }
 
-    return responseBody.trim();
+    const response = await fetch(COMGATE_CREATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: paramsStr
+    });
+    return await response.text();
 }
 
 export async function onRequestPost(context) {
@@ -145,8 +118,8 @@ export async function onRequestPost(context) {
         params.append('url_cancelled', `${baseUrl}/checkout.html?status=cancelled&orderId=${orderId}`);
         params.append('url_unpaid', `${baseUrl}/checkout.html?status=unpaid&orderId=${orderId}`);
 
-        // 8. Odeslání přes přímý TCP socket (IPv4) – obejití CF-Connecting-IP blokace
-        const responseText = await comgateViaSocket(params.toString());
+        // 8. Odeslání přes standardní fetch()
+        const responseText = await comgateViaFetch(params.toString(), env);
         const parsed = new URLSearchParams(responseText);
         const code = parsed.get('code');
         const message = parsed.get('message');
