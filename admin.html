@@ -472,6 +472,7 @@
 
         <div class="admin-tabs">
             <button class="tab-btn active" data-target="tab-orders">📦 Objednávky</button>
+            <button class="tab-btn" data-target="tab-inquiries">📩 Poptávky</button>
             <button class="tab-btn" data-target="tab-content">✍️ Texty & Obsah webu</button>
             <button class="tab-btn" data-target="tab-about">🖼️ O nás / Obrázky</button>
             <button class="tab-btn" data-target="tab-reviews">⭐ Recenze</button>
@@ -481,10 +482,11 @@
 
         <!-- Orders Section -->
         <section id="tab-orders" class="admin-section active" style="margin-bottom: 40px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h2 style="font-weight: 500;">Přehled objednávek</h2>
             </div>
-            
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Klikněte na „Detail“ u objednávky — uvidíte adresu, položky i tlačítko na stažení faktury. Stav objednávky (např. „odesláno“) tam také jednoduše změníte.</p>
+
             <div style="background: var(--bg-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto;">
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
@@ -504,9 +506,31 @@
             </div>
         </section>
 
+        <!-- Inquiries Section -->
+        <section id="tab-inquiries" class="admin-section" style="margin-bottom: 40px;">
+            <h2 class="section-title">Poptávky z kontaktního formuláře</h2>
+            <div style="background: var(--bg-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border);">
+                            <th style="padding: 12px 8px;">Datum</th>
+                            <th style="padding: 12px 8px;">Jméno</th>
+                            <th style="padding: 12px 8px;">Kontakt</th>
+                            <th style="padding: 12px 8px;">Zpráva</th>
+                            <th style="padding: 12px 8px;">Akce</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inquiries-list-container">
+                        <!-- Inquiries will load here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- Web Content Section -->
         <section id="tab-content" class="admin-section blog-section" style="margin-bottom: 40px;">
-            <h2 class="section-title">Obsah webu (Texty a nadpisy)</h2>
+            <h2 class="section-title">Texty a nadpisy na webu</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Pole jsou seřazená přesně podle toho, kde se na webu objeví — shora dolů: úvodní sekce, produkty, o nás, blog, kontakt, cookie lišta a patička. Po úpravě klikněte dole na „Uložit obsah webu a recenze“.</p>
             <form id="content-form">
                 <div id="content-fields-container" style="display: grid; gap: 15px; margin-bottom: 20px;">
                     <!-- Dynamically filled -->
@@ -546,7 +570,11 @@
 
         <!-- Products Section -->
         <section id="tab-products" class="admin-section">
-            <h2 class="section-title">Produkty</h2>
+            <h2 class="section-title">
+                Produkty
+                <button type="button" class="btn" id="btn-add-product" style="width: auto; padding: 6px 16px; font-size: 0.85rem;">+ Přidat nový produkt</button>
+            </h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Zde upravíte název, cenu, popis i fotky každého produktu. Nezapomeňte po úpravě vždy kliknout na „Uložit produkt“ dole v jeho kartě — bez toho se změna neuloží.</p>
             <div id="products-list-container" class="products-grid">
                 <!-- Dynamically filled with products -->
             </div>
@@ -648,7 +676,7 @@
                 <button class="btn btn-sm" id="btn-save-order-status" style="width: auto;">Uložit stav</button>
             </div>
             <div style="display: flex; gap: 10px;">
-                <a href="#" id="btn-download-invoice" class="btn btn-secondary btn-sm" style="flex-grow: 1; text-align: center;" target="_blank">Stáhnout fakturu (PDF)</a>
+                <a href="#" id="btn-download-invoice" class="btn btn-secondary btn-sm" style="flex-grow: 1; text-align: center;" target="_blank">🧾 Vygenerovat a stáhnout fakturu (PDF)</a>
             </div>
             <div id="order-status-feedback" class="feedback"></div>
         </div>
@@ -687,9 +715,56 @@
             }
 
             loadOrders();
+            loadInquiries();
             loadProducts();
             loadBlogPosts();
             loadWebContent();
+        }
+
+        // ── INQUIRIES MANAGEMENT ──
+        async function loadInquiries() {
+            try {
+                const res = await fetch('/api/admin?action=get-inquiries');
+                if (!res.ok) return;
+
+                const inquiries = await res.json();
+                const container = document.getElementById('inquiries-list-container');
+                container.innerHTML = '';
+
+                if (!inquiries.length) {
+                    container.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Zatím žádné poptávky.</td></tr>';
+                    return;
+                }
+
+                inquiries.forEach(inq => {
+                    const dateStr = new Date(inq.created_at).toLocaleString('cs-CZ');
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="white-space: nowrap;">${dateStr}</td>
+                        <td>${inq.name || '-'}</td>
+                        <td>${inq.email || ''}<br>${inq.phone || ''}</td>
+                        <td style="max-width: 320px; white-space: pre-wrap;">${inq.message || ''}</td>
+                        <td><button class="btn btn-secondary btn-sm" onclick="deleteInquiry(${inq.id})">Smazat</button></td>
+                    `;
+                    container.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('Error loading inquiries:', err);
+            }
+        }
+
+        async function deleteInquiry(id) {
+            if (!confirm('Opravdu smazat tuto poptávku?')) return;
+            try {
+                await fetch('/api/admin?action=delete-inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                loadInquiries();
+            } catch (err) {
+                alert('Chyba při mazání');
+            }
         }
 
         // ── ORDERS MANAGEMENT ──
@@ -784,14 +859,10 @@
             document.getElementById('modal-order-total').textContent = order.total;
             document.getElementById('modal-order-status').value = order.status;
             
-            // Tlačítko faktury
+            // Tlačítko faktury — Eva ji může vygenerovat kdykoliv, bez ohledu na stav objednávky
             const invoiceBtn = document.getElementById('btn-download-invoice');
-            if (order.status === 'PAID' || order.status === 'SHIPPED') {
-                invoiceBtn.href = `/api/invoice?orderId=${order.order_id}`;
-                invoiceBtn.style.display = 'block';
-            } else {
-                invoiceBtn.style.display = 'none';
-            }
+            invoiceBtn.href = `/api/invoice?orderId=${order.order_id}`;
+            invoiceBtn.style.display = 'block';
             
             document.getElementById('order-status-feedback').textContent = '';
             
@@ -877,72 +948,136 @@
 
         // ── WEB CONTENT MANAGEMENT ──
         let currentWebContent = {};
+        // Krátký, lidský popisek + nápověda KDE se to na webu zobrazí — ať Eva vždy ví, co upravuje.
         const contentLabels = {
-            heroTitle: 'Hero Nadpis (HTML)',
-            heroSubtitle: 'Hero Podnadpis',
-            productsTitle: 'Kolekce Nadpis',
-            productsSubtitle: 'Kolekce Podnadpis',
-            aboutLabel: 'O nás - Štítek',
-            aboutTitle: 'O nás - Nadpis',
-            aboutText: 'O nás - Text (HTML)',
-            journalTitle: 'Blog Nadpis',
-            journalSubtitle: 'Blog Podnadpis',
-            contactTitle: 'Kontakt Nadpis',
-            contactDesc: 'Kontakt Popis',
-            contactAddress: 'Kontakt Adresa',
-            contactEmail: 'Kontakt E-mail',
-            cookieText: 'Cookie Lišta - Text (HTML)',
-            cookieButton: 'Cookie Lišta - Tlačítko (Rozumím)',
-            cookieLink: 'Cookie Lišta - Tlačítko (Zásady ochrany)',
-            heroBtn1: 'Hero - Tlačítko 1 (Text)',
-            heroBtn1Url: 'Hero - Tlačítko 1 (Odkaz)',
-            heroBtn2: 'Hero - Tlačítko 2 (Text)',
-            heroBtn2Url: 'Hero - Tlačítko 2 (Odkaz)',
-            contactPhone: 'Kontakt - Telefon',
-            footerTagline: 'Patička - Tagline',
-            socialInstaUrl: 'Odkaz Instagram',
-            socialVimeoUrl: 'Odkaz Vimeo',
+            heroTitle: 'Hlavní nadpis',
+            heroSubtitle: 'Podnadpis pod ním',
+            heroBtn1: 'Text tlačítka č. 1',
+            heroBtn1Url: 'Kam tlačítko č. 1 vede (odkaz)',
+            heroBtn2: 'Text tlačítka č. 2',
+            heroBtn2Url: 'Kam tlačítko č. 2 vede (odkaz)',
+            productsTitle: 'Nadpis nad produkty',
+            productsSubtitle: 'Podnadpis nad produkty',
+            aboutLabel: 'Malý štítek nad nadpisem',
+            aboutTitle: 'Nadpis sekce',
+            aboutText: 'Text sekce O nás',
+            journalTitle: 'Nadpis nad blogem',
+            journalSubtitle: 'Podnadpis nad blogem',
+            contactTitle: 'Nadpis kontaktní sekce',
+            contactDesc: 'Popisek pod nadpisem',
+            contactAddress: 'Zobrazená adresa',
+            contactEmail: 'Zobrazený e-mail',
+            contactPhone: 'Zobrazený telefon',
+            cookieText: 'Text v cookie liště',
+            cookieButton: 'Text tlačítka "Rozumím"',
+            cookieLink: 'Text odkazu na zásady ochrany soukromí',
+            footerTagline: 'Slogan pod logem',
+            socialInstaUrl: 'Odkaz na Instagram',
+            socialVimeoUrl: 'Odkaz na Vimeo',
             aboutImage: 'O nás - Obrázek (URL)'
         };
+
+        // Pole seskupená přesně podle toho, kde se na webu zobrazí — tak se Eva v tom neztratí.
+        const CONTENT_GROUPS = [
+            {
+                title: '🏠 Úvodní sekce (první věc, kterou lidé na webu vidí)',
+                fields: ['heroTitle', 'heroSubtitle', 'heroBtn1', 'heroBtn1Url', 'heroBtn2', 'heroBtn2Url']
+            },
+            {
+                title: '🛍️ Nadpis nad kolekcí produktů',
+                fields: ['productsTitle', 'productsSubtitle']
+            },
+            {
+                title: '🖼️ Sekce „O nás“',
+                fields: ['aboutLabel', 'aboutTitle', 'aboutText'],
+                note: 'Obrázek k této sekci nahrajete v záložce „🖼️ O nás / Obrázky“.'
+            },
+            {
+                title: '📝 Nadpis nad blogem (Studio Journal)',
+                fields: ['journalTitle', 'journalSubtitle']
+            },
+            {
+                title: '✉️ Kontaktní sekce',
+                fields: ['contactTitle', 'contactDesc', 'contactAddress', 'contactEmail', 'contactPhone']
+            },
+            {
+                title: '🍪 Cookie lišta (proužek dole při první návštěvě)',
+                fields: ['cookieText', 'cookieButton', 'cookieLink']
+            },
+            {
+                title: '🔻 Patička webu (úplně dole na každé stránce)',
+                fields: ['footerTagline', 'socialInstaUrl', 'socialVimeoUrl']
+            }
+        ];
+
+        function buildContentField(key, value) {
+            const div = document.createElement('div');
+            div.className = 'form-group';
+
+            if (key.includes('Text') || key.includes('Desc')) {
+                div.innerHTML = `
+                    <label>${contentLabels[key]}</label>
+                    <textarea id="content-input-${key}" rows="4">${value}</textarea>
+                `;
+            } else if (key.includes('Image')) {
+                div.innerHTML = `
+                    <label>${contentLabels[key]}</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="content-input-${key}" value="${value}" style="flex-grow: 1;">
+                        <input type="file" id="content-file-${key}" accept="image/*" style="display:none">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('content-file-${key}').click()">Nahrát fotku</button>
+                    </div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <label>${contentLabels[key]}</label>
+                    <input type="text" id="content-input-${key}" value="${value}">
+                `;
+            }
+            return div;
+        }
 
         async function loadWebContent() {
             try {
                 const res = await fetch('/api/content');
                 currentWebContent = await res.json();
-                
+
                 const container = document.getElementById('content-fields-container');
                 container.innerHTML = '';
 
-                Object.keys(contentLabels).forEach(key => {
-                    const value = currentWebContent[key] || '';
-                    const div = document.createElement('div');
-                    div.className = 'form-group';
-                    
-                    if (key.includes('Text') || key.includes('Desc')) {
-                        div.innerHTML = `
-                            <label>${contentLabels[key]}</label>
-                            <textarea id="content-input-${key}" rows="4">${value}</textarea>
-                        `;
-                    } else if (key.includes('Image')) {
-                        div.innerHTML = `
-                            <label>${contentLabels[key]}</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="text" id="content-input-${key}" value="${value}" style="flex-grow: 1;">
-                                <input type="file" id="content-file-${key}" accept="image/*" style="display:none">
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('content-file-${key}').click()">Nahrát fotku</button>
-                            </div>
-                        `;
-                    } else {
-                        div.innerHTML = `
-                            <label>${contentLabels[key]}</label>
-                            <input type="text" id="content-input-${key}" value="${value}">
-                        `;
-                    }
-                    container.appendChild(div);
+                CONTENT_GROUPS.forEach(group => {
+                    const groupBox = document.createElement('div');
+                    groupBox.style.cssText = 'background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;';
 
+                    const heading = document.createElement('h3');
+                    heading.textContent = group.title;
+                    heading.style.cssText = 'margin: 0 0 6px; font-size: 1.05rem;';
+                    groupBox.appendChild(heading);
+
+                    if (group.note) {
+                        const note = document.createElement('p');
+                        note.textContent = group.note;
+                        note.style.cssText = 'color: var(--text-muted); font-size: 0.85rem; margin: 0 0 14px;';
+                        groupBox.appendChild(note);
+                    }
+
+                    const fieldsWrap = document.createElement('div');
+                    fieldsWrap.style.cssText = 'display: grid; gap: 15px;';
+                    group.fields.forEach(key => {
+                        const value = currentWebContent[key] || '';
+                        fieldsWrap.appendChild(buildContentField(key, value));
+                    });
+                    groupBox.appendChild(fieldsWrap);
+
+                    container.appendChild(groupBox);
+                });
+
+                Object.keys(contentLabels).forEach(key => {
                     if (key.includes('Image')) {
                         const fileInput = document.getElementById(`content-file-${key}`);
                         const textInput = document.getElementById(`content-input-${key}`);
+                        if (!fileInput || !textInput) return; // pole se v této záložce nezobrazuje (např. aboutImage má vlastní záložku)
+                        const originalValue = currentWebContent[key] || '';
                         fileInput.addEventListener('change', async (e) => {
                             const file = e.target.files[0];
                             if (!file) return;
@@ -961,11 +1096,11 @@
                                         textInput.value = data.imageUrl;
                                     } else {
                                         alert(data.error);
-                                        textInput.value = value;
+                                        textInput.value = originalValue;
                                     }
                                 } catch (err) {
                                     alert('Chyba nahrávání');
-                                    textInput.value = value;
+                                    textInput.value = originalValue;
                                 }
                             };
                         });
@@ -1106,14 +1241,18 @@
                 const container = document.getElementById('products-list-container');
                 container.innerHTML = '';
 
-                products.forEach(p => {
+                products.forEach((p, index) => {
                     const inStock = p.inStock !== false; // Default true
                     const priceVal = parseInt(p.price.replace(/[^0-9]/g, ''), 10) || 990;
 
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.innerHTML = `
-                        <img src="${p.localImg || p.imgUrl}" class="product-img-preview" id="preview-img-${p.id}" data-uploaded-url="${p.localImg || p.imgUrl}">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px;">
+                            <strong style="font-size:1.05rem;">${index + 1}. ${p.name}</strong>
+                            <span style="font-size:0.75rem; padding:3px 8px; border-radius:999px; background:${inStock ? 'rgba(46,160,67,0.15)' : 'rgba(200,60,60,0.15)'}; color:${inStock ? '#2ea043' : '#c83c3c'};">${inStock ? 'Skladem' : 'Vyprodáno'}</span>
+                        </div>
+                        <img src="${p.localImg || p.imgUrl || '/images/logo.png'}" onerror="this.src='/images/logo.png'" class="product-img-preview" id="preview-img-${p.id}" data-uploaded-url="${p.localImg || p.imgUrl || ''}">
                         
                         <div class="drag-drop-zone" id="drag-zone-${p.id}">
                             <p>Drag & drop novou fotku</p>
@@ -1158,7 +1297,8 @@
                             <textarea id="images-${p.id}" rows="2">${(p.images || []).join(', ')}</textarea>
                         </div>
 
-                        <button class="btn" onclick="updateProduct('${p.id}')">Uložit produkt</button>
+                        <button class="btn" onclick="updateProduct('${p.id}')">💾 Uložit produkt</button>
+                        <button type="button" class="btn btn-secondary btn-delete-product" style="margin-top: 8px; color: #c0392b;" data-id="${p.id}" data-name="${(p.name || 'tento produkt').replace(/"/g, '&quot;')}">🗑️ Smazat produkt</button>
                         <div id="feedback-${p.id}" class="feedback"></div>
                     `;
 
@@ -1166,6 +1306,9 @@
 
                     // Setup Image Upload handlers for each product card
                     setupImageUpload(p.id);
+                    card.querySelector('.btn-delete-product').addEventListener('click', (e) => {
+                        deleteProduct(e.target.dataset.id, e.target.dataset.name);
+                    });
                 });
             } catch (err) {
                 console.error('Error loading products:', err);
@@ -1279,6 +1422,47 @@
                 }
             } catch (err) {
                 feedback.textContent = 'Chyba serveru';
+            }
+        }
+
+        document.getElementById('btn-add-product').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-add-product');
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/admin?action=add-product', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'Nový produkt', price: 990 })
+                });
+                if (res.ok) {
+                    await loadProducts();
+                    alert('Nový produkt byl vytvořen. Rolujte dolů, najdete ho na konci seznamu — vyplňte jeho název, cenu a popis a klikněte na „Uložit produkt“.');
+                } else {
+                    alert('Nepodařilo se vytvořit produkt. Zkuste to prosím znovu.');
+                }
+            } catch (err) {
+                alert('Chyba serveru, zkuste to prosím znovu.');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        async function deleteProduct(productId, productName) {
+            const sure = confirm(`Opravdu chcete natrvalo smazat produkt „${productName}“?\n\nTuto akci nejde vzít zpět.`);
+            if (!sure) return;
+            try {
+                const res = await fetch('/api/admin?action=delete-product', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: productId })
+                });
+                if (res.ok) {
+                    await loadProducts();
+                } else {
+                    alert('Smazání se nezdařilo. Zkuste to prosím znovu.');
+                }
+            } catch (err) {
+                alert('Chyba serveru, zkuste to prosím znovu.');
             }
         }
 

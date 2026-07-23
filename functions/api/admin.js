@@ -66,6 +66,51 @@ export async function onRequest(context) {
         return Response.json({ success: true });
     }
 
+    if (request.method === 'POST' && action === 'add-product') {
+        const body = await request.json();
+        const name = body.name || 'Nový produkt';
+        const id = 'p_' + Date.now();
+        const price = (body.price !== undefined ? body.price : 990) + ' Kč';
+        const variants = JSON.stringify(body.variants || []);
+        const images = JSON.stringify(body.images || []);
+
+        await env.DB.prepare(
+            `INSERT INTO products (id, name, price, description, short_description, variants, images, local_img, in_stock)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        ).bind(
+            id,
+            name,
+            price,
+            body.description || '',
+            body.shortDescription || '',
+            variants,
+            images,
+            body.image || '',
+            1
+        ).run();
+
+        return Response.json({ success: true, id });
+    }
+
+    if (request.method === 'POST' && action === 'delete-product') {
+        const body = await request.json();
+        if (!body.id) return Response.json({ error: 'Chybí ID' }, { status: 400 });
+        await env.DB.prepare("DELETE FROM products WHERE id = ?").bind(body.id).run();
+        return Response.json({ success: true });
+    }
+
+    if (request.method === 'GET' && action === 'get-inquiries') {
+        const { results } = await env.DB.prepare("SELECT * FROM inquiries ORDER BY created_at DESC").all();
+        return Response.json(results || []);
+    }
+
+    if (request.method === 'POST' && action === 'delete-inquiry') {
+        const body = await request.json();
+        if (!body.id) return Response.json({ error: 'Chybí ID' }, { status: 400 });
+        await env.DB.prepare("DELETE FROM inquiries WHERE id = ?").bind(body.id).run();
+        return Response.json({ success: true });
+    }
+
     if (request.method === 'POST' && action === 'save-post') {
         const body = await request.json();
         const id = body.id;
