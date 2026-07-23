@@ -1,4 +1,5 @@
 import { PDFDocument, rgb } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 
 export async function onRequestGet(context) {
     const { request, env } = context;
@@ -40,7 +41,8 @@ export async function onRequestGet(context) {
         
         // Vytvoření PDF
         const pdfDoc = await PDFDocument.create();
-        
+        pdfDoc.registerFontkit(fontkit);
+
         // Načtení fontu Roboto (podpora českých znaků)
         const fontBytes = await fetch('https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf').then(res => res.arrayBuffer());
         const fontBoldBytes = await fetch('https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Bold.ttf').then(res => res.arrayBuffer());
