@@ -4,3 +4,8 @@ pages_build_output_dir = "."
 [vars]
 COMGATE_MERCHANT_ID = "515689"
 COMGATE_TEST = "true"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "evalangrova-db"
+database_id = "8db5f0c4-bcec-4749-b576-eb05b947ac19"
