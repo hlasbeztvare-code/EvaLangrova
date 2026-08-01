@@ -1011,9 +1011,9 @@ a {
 }
 
 .footer-payment-methods img {
-    height: 36px;
+    height: 16px;
     width: auto;
-    opacity: 1;
+    opacity: 0.9;
 }
 
 .footer-copyright {
