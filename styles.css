@@ -258,7 +258,7 @@ a {
 
 .hero-title {
     font-size: 64px;
-    line-height: 0.95;
+    line-height: 0.85;
     margin-bottom: 24px;
     text-transform: uppercase;
 }
@@ -1002,6 +1002,18 @@ a {
 .footer-col a:hover {
     color: var(--color-accent);
     transform: translateX(3px);
+}
+
+.footer-payment-methods {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.footer-payment-methods img {
+    height: 36px;
+    width: auto;
+    opacity: 1;
 }
 
 .footer-copyright {

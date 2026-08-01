@@ -1359,13 +1359,14 @@
         
         document.getElementById('btn-save-reviews').addEventListener('click', async () => {
             const reviews = [];
-            const rBlocks = document.querySelectorAll('.review-block');
-            rBlocks.forEach(b => {
-                const name = b.querySelector('.r-name').value;
-                const date = b.querySelector('.r-date').value;
-                const text = b.querySelector('.r-text').value;
-                if(name && text) reviews.push({ name, date, text });
-            });
+            const reviewElements = document.getElementById('reviews-container').children;
+            for (let i = 0; i < reviewElements.length; i++) {
+                const el = reviewElements[i];
+                const author = el.querySelector('.review-author').value;
+                const text = el.querySelector('.review-text').value;
+                const stars = el.querySelector('.review-stars').value;
+                if (author && text) reviews.push({ author, stars, text });
+            }
 
             try {
                 const res = await fetch('/api/admin?action=save-content', {
