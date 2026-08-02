@@ -540,7 +540,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     { author: 'Tereza K.', stars: 5, text: 'Halo filtr mi úplně změnil noční fotky, ten měkký odlesk kolem světel je přesně to, co jsem hledala.' },
                     { author: 'Martin S.', stars: 5, text: 'Fog filtr používám na skoro každém svatebním focení, dodá to filmovou atmosféru rovnou z foťáku.' },
                     { author: 'Jana P.', stars: 4, text: 'Kvalita skla je znát na první pohled, objednávku jsem měla doma za dva dny.' },
-                    { author: 'Ondřej V.', stars: 5, text: 'Kaleidoskop je skvělá zábava na kreativní portréty, klienti jsou z výsledků nadšení.' }
+                    { author: 'Ondřej V.', stars: 5, text: 'Kaleidoskop je skvělá zábava na kreativní portréty, klienti jsou z výsledků nadšení.' },
+                    { author: 'Lucie H.', stars: 5, text: 'Objednávala jsem přes eshop, komunikace i doručení naprosto bez problémů, filtry sedí přesně na závit.' },
+                    { author: 'Petr N.', stars: 4, text: 'Prism filtr dodává záběrům originální nádech, používám ho hlavně na hudební videa.' }
                 ];
                 var reviewsToRender = (data['reviews'] && Array.isArray(data['reviews']) && data['reviews'].length > 0)
                     ? data['reviews']
