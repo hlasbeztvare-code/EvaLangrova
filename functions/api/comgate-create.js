@@ -124,10 +124,9 @@ export async function onRequestPost(context) {
         const code = parsed.get('code');
         const message = parsed.get('message');
         const transId = parsed.get('transId');
-        // Comgate v1.0 API vrací pole "redirect", ne "redirectUrl" — DEBUG: dokud si to
-        // neověříme na produkci, vracíme i syrovou odpověď, ať víme jistě.
+        // Comgate v1.0 API vrací pole "redirect", ne "redirectUrl" — s tím starým
+        // klíčem byl redirectUrl vždy null a zákazník neměl kam zaplatit.
         const redirectUrl = parsed.get('redirect') || parsed.get('redirectUrl');
-        const __debugRaw = responseText;
 
         if (code !== '0') {
             console.error(`Comgate chyba [${code}]: ${message}`, { orderId });
@@ -141,7 +140,6 @@ export async function onRequestPost(context) {
         return Response.json({
             success: true,
             redirectUrl,
-            __debugRaw,
             transId,
             orderId
         });
