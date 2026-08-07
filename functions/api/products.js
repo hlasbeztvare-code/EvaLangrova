@@ -7,6 +7,7 @@ export async function onRequest(context) {
             try {
                 if (row.variants && typeof row.variants === 'string') row.variants = JSON.parse(row.variants);
                 if (row.images && typeof row.images === 'string') row.images = JSON.parse(row.images);
+                row.params = row.params && typeof row.params === 'string' ? JSON.parse(row.params) : [];
             } catch(e) {}
             // Boolean map
             row.inStock = row.in_stock === 1;

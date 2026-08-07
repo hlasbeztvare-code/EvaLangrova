@@ -428,7 +428,26 @@ document.addEventListener('DOMContentLoaded', function() {
                             addBtn.style.color = '#8e8e9f';
                             addBtn.style.cursor = 'not-allowed';
                         }
-                        
+
+                        // Technické parametry (pole label/value, editovatelné v adminu)
+                        var paramsContainer = document.querySelector('.product-params-container');
+                        var paramsTable = document.querySelector('.params-table');
+                        if (paramsTable) {
+                            var params = product.params || [];
+                            if (params.length > 0) {
+                                paramsTable.innerHTML = params.map(function(row) {
+                                    return '<tr><td class="param-label"></td><td class="param-value"></td></tr>';
+                                }).join('');
+                                var trs = paramsTable.querySelectorAll('tr');
+                                params.forEach(function(row, i) {
+                                    trs[i].querySelector('.param-label').textContent = row.label || '';
+                                    trs[i].querySelector('.param-value').textContent = row.value || '';
+                                });
+                                if (paramsContainer) paramsContainer.style.display = '';
+                            } else if (paramsContainer) {
+                                paramsContainer.style.display = 'none';
+                            }
+                        }
 
                     } else {
                         notFound.style.display = 'block';

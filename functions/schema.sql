@@ -9,7 +9,8 @@ CREATE TABLE products (
     variants TEXT,
     images TEXT,
     local_img TEXT,
-    in_stock INTEGER
+    in_stock INTEGER,
+    params TEXT
 );
 
 DROP TABLE IF EXISTS blog;

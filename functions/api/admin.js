@@ -75,6 +75,7 @@ export async function onRequest(context) {
         if (body.inStock !== undefined) { setClause.push(`in_stock = ?${paramIndex++}`); params.push(body.inStock ? 1 : 0); }
         if (body.description !== undefined) { setClause.push(`description = ?${paramIndex++}`); params.push(body.description); }
         if (body.image) { setClause.push(`local_img = ?${paramIndex++}`); params.push(body.image); }
+        if (body.params !== undefined) { setClause.push(`params = ?${paramIndex++}`); params.push(JSON.stringify(body.params)); }
 
         if (setClause.length > 0) {
             params.push(id);

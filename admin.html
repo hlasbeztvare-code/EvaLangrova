@@ -1474,6 +1474,46 @@
 
         const productQuillEditors = {}; // { [productId]: { desc1, desc2 } }
         const productGalleries = {};     // { [productId]: string[] (URL fotek) }
+        const productParams = {};        // { [productId]: [{label, value}] }
+
+        function renderParams(productId) {
+            const wrap = document.getElementById(`params-${productId}`);
+            if (!wrap) return;
+            const rows = productParams[productId] || [];
+            wrap.innerHTML = rows.map((row, i) => `
+                <div style="display:flex; gap:6px;">
+                    <input type="text" placeholder="Název (např. Materiál)" value="${(row.label || '').replace(/"/g, '&quot;')}"
+                        data-product="${productId}" data-index="${i}" data-field="label" class="param-input" style="flex:1;">
+                    <input type="text" placeholder="Hodnota" value="${(row.value || '').replace(/"/g, '&quot;')}"
+                        data-product="${productId}" data-index="${i}" data-field="value" class="param-input" style="flex:1;">
+                    <button type="button" class="param-remove-btn" data-product="${productId}" data-index="${i}"
+                        style="width:32px; border:none; border-radius:6px; background:#c0392b; color:#fff; cursor:pointer;">×</button>
+                </div>
+            `).join('') || '<p style="color: var(--text-muted); font-size: 0.82rem; margin:0;">Zatím žádné parametry.</p>';
+
+            wrap.querySelectorAll('.param-input').forEach(input => {
+                input.addEventListener('input', () => {
+                    const pid = input.dataset.product;
+                    const idx = Number(input.dataset.index);
+                    const field = input.dataset.field;
+                    productParams[pid][idx][field] = input.value;
+                });
+            });
+            wrap.querySelectorAll('.param-remove-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const pid = btn.dataset.product;
+                    const idx = Number(btn.dataset.index);
+                    productParams[pid].splice(idx, 1);
+                    renderParams(pid);
+                });
+            });
+        }
+
+        function addParamRow(productId) {
+            if (!productParams[productId]) productParams[productId] = [];
+            productParams[productId].push({ label: '', value: '' });
+            renderParams(productId);
+        }
 
         function renderGallery(productId) {
             const wrap = document.getElementById(`gallery-${productId}`);
@@ -1560,6 +1600,13 @@
                         </div>
 
                         <div class="form-group">
+                            <label>Technické parametry (Stránka produktu)</label>
+                            <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0 0 8px;">Řádky tabulky "Technické parametry" na stránce produktu — každý řádek má název a hodnotu.</p>
+                            <div id="params-${p.id}" style="display:flex; flex-direction:column; gap:6px; margin-bottom:8px;"></div>
+                            <button type="button" class="btn btn-secondary btn-sm" style="width:auto;" onclick="addParamRow('${p.id}')">+ Přidat parametr</button>
+                        </div>
+
+                        <div class="form-group">
                             <label>Fotky galerie</label>
                             <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0 0 8px;">Fotky, které se zobrazí v galerii na stránce produktu. Přidávejte je nahráním, žádné odkazy nevkládejte.</p>
                             <div id="gallery-${p.id}" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;"></div>
@@ -1588,6 +1635,10 @@
                     desc1.root.innerHTML = col1;
                     desc2.root.innerHTML = col2;
                     productQuillEditors[p.id] = { desc1, desc2 };
+
+                    // Technické parametry
+                    productParams[p.id] = (p.params || []).map(row => ({ ...row }));
+                    renderParams(p.id);
 
                     // Galerie fotek — jen nahrávání, žádné URL
                     productGalleries[p.id] = [...(p.images || [])];
@@ -1697,6 +1748,7 @@
             );
             const variants = document.getElementById(`variants-${productId}`).value.split(',').map(v => v.trim()).filter(Boolean);
             const images = productGalleries[productId] || [];
+            const params = (productParams[productId] || []).filter(row => (row.label || '').trim() || (row.value || '').trim());
             
             const preview = document.getElementById(`preview-img-${productId}`);
             const image = preview.dataset.uploadedUrl;
@@ -1720,7 +1772,8 @@
                         description,
                         variants,
                         images,
-                        image
+                        image,
+                        params
                     })
                 });
 
